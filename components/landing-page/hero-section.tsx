@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, Users, BarChart3 } from "lucide-react";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-primary/5 py-20 md:py-32">
+    <section className="relative overflow-hidden bg-primary/5 py-20 md:py-32 min-h-screen flex items-center justify-center">
       <div className="container relative">
         <div className="mx-auto max-w-4xl text-center">
           <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">

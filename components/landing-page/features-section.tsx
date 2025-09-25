@@ -69,18 +69,23 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="funcionalidades" className="py-20 md:py-32">
-      <div className="container">
-        <div className="mx-auto max-w-2xl text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl text-balance">
+    <section
+      id="funcionalidades"
+      className="py-20 md:py-32 justify-items-center"
+    >
+      {/* Container que centraliza a seção */}
+      <div className="container text-center">
+        <div className="mx-auto max-w-2xl mb-16">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
             Funcionalidades Completas
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground text-pretty">
+          <p className="mt-4 text-lg text-muted-foreground">
             Tudo que você precisa para modernizar e automatizar sua biblioteca
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Grid de cards, ajustada para garantir centralização */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
           {features.map((feature, index) => (
             <Card
               key={index}

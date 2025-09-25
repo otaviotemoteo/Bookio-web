@@ -2,7 +2,7 @@ import { BookOpen } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer id="contato" className="bg-muted/30 border-t">
+    <footer id="contato" className="bg-muted/30 border-t justify-items-center">
       <div className="container py-12 md:py-16">
         <div className="flex flex-col items-center justify-center text-center space-y-4">
           <div className="flex items-center justify-center gap-2">
