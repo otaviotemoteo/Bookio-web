@@ -61,10 +61,6 @@ export function ModulesSection() {
                   Gestão completa do acervo
                 </li>
               </ul>
-              <Button variant="outline" className="w-full mt-6 bg-transparent">
-                Ver Módulo Bibliotecário
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
             </CardContent>
           </Card>
 
@@ -105,10 +101,6 @@ export function ModulesSection() {
                   Acompanhamento de pendências
                 </li>
               </ul>
-              <Button variant="outline" className="w-full mt-6 bg-transparent">
-                Ver Módulo do Usuário
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
             </CardContent>
           </Card>
         </div>

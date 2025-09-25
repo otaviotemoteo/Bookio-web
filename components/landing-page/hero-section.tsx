@@ -30,45 +30,13 @@ export function HeroSection() {
               Começar Agora
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button variant="outline" size="lg">
-              Ver Demonstração
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
-          <div className="text-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mx-auto mb-4">
-              <BookOpen className="h-6 w-6 text-primary" />
-            </div>
-            <div className="text-2xl font-bold text-foreground">10,000+</div>
-            <div className="text-sm text-muted-foreground">
-              Livros Gerenciados
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mx-auto mb-4">
-              <Users className="h-6 w-6 text-primary" />
-            </div>
-            <div className="text-2xl font-bold text-foreground">5,000+</div>
-            <div className="text-sm text-muted-foreground">Usuários Ativos</div>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mx-auto mb-4">
-              <BarChart3 className="h-6 w-6 text-primary" />
-            </div>
-            <div className="text-2xl font-bold text-foreground">99.9%</div>
-            <div className="text-sm text-muted-foreground">Uptime</div>
           </div>
         </div>
       </div>
-
-      {/* Background decoration */}
       <div className="absolute top-0 right-0 -translate-y-12 translate-x-12">
         <div className="h-64 w-64 rounded-full bg-primary/5 blur-3xl"></div>
       </div>
-      <div className="absolute bottom-0 left-0 translate-y-12 -translate-x-12">
+      <div className="absolute bottom-0 left-0 translate-y-2 -translate-x-12">
         <div className="h-64 w-64 rounded-full bg-accent/5 blur-3xl"></div>
       </div>
     </section>

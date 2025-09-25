@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
-import "../styles/globals.css";
+import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",

@@ -20,12 +20,6 @@ export function Header() {
             Funcionalidades
           </a>
           <a
-            href="#sobre"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Sobre
-          </a>
-          <a
             href="#contato"
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
