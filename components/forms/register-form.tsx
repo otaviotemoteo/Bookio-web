@@ -36,7 +36,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const {
@@ -54,11 +53,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    if (!termsAccepted) {
-      alert("Você deve aceitar os termos de serviço para continuar.");
-      return;
-    }
-
     setLoading(true);
     try {
       const validatedData = registerSchema.parse(data);
