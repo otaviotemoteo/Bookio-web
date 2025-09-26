@@ -10,7 +10,10 @@ import { UserCheck, User, ArrowRight } from "lucide-react";
 
 export function ModulesSection() {
   return (
-    <section className="py-20 md:py-32 bg-muted/30 justify-items-center">
+    <section
+      id="modulos"
+      className="py-20 md:py-32 bg-muted/30 justify-items-center"
+    >
       <div className="container">
         <div className="mx-auto max-w-2xl text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl text-balance">

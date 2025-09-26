@@ -1,5 +1,6 @@
 import { Button } from "../ui/button";
 import { ArrowRight, BookOpen, Users, BarChart3 } from "lucide-react";
+import Link from "next/link";
 
 export function HeroSection() {
   return (
@@ -23,13 +24,15 @@ export function HeroSection() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              Começar Agora
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <Link href="/login">
+              <Button
+                size="lg"
+                className="bg-primary cursor-pointer hover:bg-primary/90 text-primary-foreground"
+              >
+                Começar Agora
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

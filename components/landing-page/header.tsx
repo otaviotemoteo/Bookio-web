@@ -1,5 +1,6 @@
 import { Button } from "../ui/button";
 import { BookOpen, Menu } from "lucide-react";
+import Link from "next/link";
 
 export function Header() {
   return (
@@ -20,20 +21,33 @@ export function Header() {
             Funcionalidades
           </a>
           <a
-            href="#contato"
+            href="#modulos"
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
-            Contato
+            Módulos
           </a>
         </nav>
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="hidden md:inline-flex">
-            Entrar
-          </Button>
-          <Button size="sm" className="bg-primary hover:bg-primary/90">
-            Criar Conta
-          </Button>
+          <Link href="/login">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden md:inline-flex cursor-pointer"
+            >
+              Entrar
+            </Button>
+          </Link>
+
+          <Link href="/register">
+            <Button
+              size="sm"
+              className="cursor-pointer bg-primary hover:bg-primary/90"
+            >
+              Criar Conta
+            </Button>
+          </Link>
+
           <Button variant="ghost" size="sm" className="md:hidden">
             <Menu className="h-4 w-4" />
           </Button>
