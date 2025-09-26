@@ -207,7 +207,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           <Button
             onClick={handleSubmit(onSubmit)}
             className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-200"
-            disabled={loading || !termsAccepted}
+            disabled={loading}
           >
             {loading ? "Criando conta..." : "Criar conta"}
           </Button>
