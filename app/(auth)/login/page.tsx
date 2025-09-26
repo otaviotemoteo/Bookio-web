@@ -1,35 +1,27 @@
-import { LoginForm } from "../../../components/forms/login-form";
+"use client";
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ callbackUrl?: string }>;
-}) {
-  const { callbackUrl } = await searchParams;
-  const finalUrl = callbackUrl ?? "/dashboard";
+import { LoginForm } from "../../../components/forms/login-form";
+import { useSearchParams, useRouter } from "next/navigation";
+
+export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+
+  const handleLoginSuccess = (data: any) => {
+    console.log("Login realizado:", data);
+    router.push(callbackUrl);
+  };
+
+  const handleNavigateToRegister = () => {
+    router.push(`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+  };
 
   return (
-    <div className="flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 border">
-        {/* Header */}
-        <div className="mb-8 text-center space-y-2">
-          <p className="text-muted-foreground">Faça login na sua conta</p>
-        </div>
-
-        {/* Form */}
-        <LoginForm callbackUrl={finalUrl} />
-
-        {/* Footer */}
-        <p className="mt-6 text-sm text-center text-muted-foreground">
-          Não tem conta?{" "}
-          <a
-            className="text-primary hover:underline font-medium"
-            href={`/register?callbackUrl=${encodeURIComponent(finalUrl)}`}
-          >
-            Criar conta
-          </a>
-        </p>
-      </div>
-    </div>
+    <LoginForm
+      onLoginSuccess={handleLoginSuccess}
+      onNavigateToRegister={handleNavigateToRegister}
+    />
   );
 }
