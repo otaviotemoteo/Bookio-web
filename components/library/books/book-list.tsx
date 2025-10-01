@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
-import BookCard from "./book-card";
+import BookCard from "./book-card"; // Componente para exibir um livro
 
 interface Book {
   id: number;
@@ -7,7 +9,11 @@ interface Book {
   author: string;
 }
 
-const BookList: React.FC = () => {
+interface BookListProps {
+  onEdit: (book: Book) => void;
+}
+
+const BookList: React.FC<BookListProps> = ({ onEdit }) => {
   // Dados mockados
   const [books, setBooks] = useState<Book[]>([
     { id: 1, title: "O Senhor dos Anéis", author: "J.R.R. Tolkien" },
@@ -20,12 +26,6 @@ const BookList: React.FC = () => {
     setBooks(books.filter((book) => book.id !== id));
   };
 
-  // Função para editar um livro (simulada)
-  const handleEdit = (id: number) => {
-    console.log(`Editar livro com id: ${id}`);
-    // Aqui você pode implementar a lógica para editar o livro
-  };
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {books.map((book) => (
@@ -34,7 +34,7 @@ const BookList: React.FC = () => {
           id={book.id}
           title={book.title}
           author={book.author}
-          onEdit={handleEdit}
+          onEdit={() => onEdit(book)} // Passa o livro para o modal de edição
           onDelete={handleDelete}
         />
       ))}
