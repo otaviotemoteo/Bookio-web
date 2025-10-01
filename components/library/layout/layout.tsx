@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import Header from "./header";
 import Sidebar from "./sidebar";
-import styles from "./Layout.module.css";
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,11 +14,11 @@ const Layout: React.FC<LayoutProps> = ({
   userAvatarUrl,
 }) => {
   return (
-    <div className={styles.layout}>
+    <div className="flex h-screen bg-gray-100">
       <Sidebar />
-      <div className={styles.main}>
+      <div className="flex-1 flex flex-col">
         <Header userName={userName} userAvatarUrl={userAvatarUrl} />
-        <div className={styles.content}>{children}</div>
+        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
       </div>
     </div>
   );

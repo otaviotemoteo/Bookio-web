@@ -1,33 +1,82 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import styles from "./Sidebar.module.css";
-
-interface SidebarItem {
-  label: string;
-  href: string;
-}
-
-const sidebarItems: SidebarItem[] = [
-  { label: "Dashboard", href: "/library/dashboard" },
-  { label: "Livros", href: "/library/books" },
-  { label: "Leitores", href: "/library/create-reader" },
-  { label: "Empréstimos", href: "/library/loans" },
-  { label: "Pagamentos", href: "/library/payments" },
-  { label: "Reservas", href: "/library/reservations" },
-];
+import {
+  FaTachometerAlt,
+  FaBook,
+  FaUsers,
+  FaClipboardList,
+  FaRegMoneyBillAlt,
+  FaCalendarAlt,
+} from "react-icons/fa";
+import { BookOpen } from "lucide-react";
 
 const Sidebar: React.FC = () => {
   return (
-    <aside className={styles.sidebar}>
-      <nav>
+    <aside className="w-64 h-screen bg-gradient-to-b from-[#4A8DF8] to-[#2C6CE1] text-white flex flex-col">
+      {/* Logo / Título */}
+      <div className="px-6 py-4 text-2xl font-bold border-b border-gray-700 flex items-center space-x-2">
+        <BookOpen className="w-7 h-7 text-white" />
+        <span>Bookio</span>
+      </div>
+
+      {/* Menu */}
+      <nav className="flex-1 mt-4">
         <ul>
-          {sidebarItems.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href}>
-                <a>{item.label}</a>
-              </Link>
-            </li>
-          ))}
+          <li>
+            <Link
+              href="/dashboard"
+              className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
+            >
+              <FaTachometerAlt className="mr-3" /> Dashboard
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              href="/books"
+              className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
+            >
+              <FaBook className="mr-3" /> Gestão do Acervo
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              href="/loans"
+              className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
+            >
+              <FaClipboardList className="mr-3" /> Empréstimos / Devoluções
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              href="/reservations"
+              className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
+            >
+              <FaCalendarAlt className="mr-3" /> Gestão de Reservas
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              href="/payments"
+              className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
+            >
+              <FaRegMoneyBillAlt className="mr-3" /> Controle de Multas
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              href="/create-reader"
+              className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
+            >
+              <FaUsers className="mr-3" /> Gestão de Usuários
+            </Link>
+          </li>
         </ul>
       </nav>
     </aside>
