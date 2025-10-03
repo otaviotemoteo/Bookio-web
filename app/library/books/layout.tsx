@@ -1,8 +1,8 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import Sidebar from "../../components/library/layout/sidebar";
-import Header from "../../components/library/layout/header";
+import Sidebar from "../../../components/library/layout/sidebar";
+import Header from "../../../components/library/layout/header";
 
 interface LayoutProps {
   children: ReactNode; // Recebe o conteúdo específico de cada página
