@@ -28,5 +28,5 @@ export interface ReturnFormData {
   loanId: string;
   returnDate: string;
   condition: 'good' | 'damaged' | 'lost';
-  notes?: string;
+  notes?: string
 }

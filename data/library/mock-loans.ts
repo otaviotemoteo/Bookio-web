@@ -70,7 +70,7 @@ export const mockLoans: Loan[] = [
     renewalCount: 0
   },
   {
-    id: '6',
+    id: '66',
     bookId: 'book-6',
     bookTitle: 'Domain-Driven Design',
     bookAuthor: 'Eric Evans',
