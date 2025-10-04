@@ -17,6 +17,7 @@ interface LoansTableProps {
   loans: Loan[];
   onReturn: (loanId: string) => void;
   onRenew: (loanId: string) => void;
+  hasFilters?: boolean; 
 }
 
 const statusConfig = {
