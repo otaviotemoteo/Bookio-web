@@ -26,7 +26,7 @@ const Sidebar: React.FC = () => {
         <ul>
           <li>
             <Link
-              href="/dashboard"
+              href="/library/dashboard"
               className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
             >
               <FaTachometerAlt className="mr-3" /> Dashboard
@@ -35,7 +35,7 @@ const Sidebar: React.FC = () => {
 
           <li>
             <Link
-              href="/books"
+              href="/library/books"
               className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
             >
               <FaBook className="mr-3" /> Gestão do Acervo
@@ -44,7 +44,7 @@ const Sidebar: React.FC = () => {
 
           <li>
             <Link
-              href="/loans"
+              href="/library/loans"
               className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
             >
               <FaClipboardList className="mr-3" /> Empréstimos / Devoluções
@@ -53,7 +53,7 @@ const Sidebar: React.FC = () => {
 
           <li>
             <Link
-              href="/reservations"
+              href="/library/reservations"
               className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
             >
               <FaCalendarAlt className="mr-3" /> Gestão de Reservas
@@ -62,7 +62,7 @@ const Sidebar: React.FC = () => {
 
           <li>
             <Link
-              href="/payments"
+              href="/library/payments"
               className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
             >
               <FaRegMoneyBillAlt className="mr-3" /> Controle de Multas
@@ -71,7 +71,7 @@ const Sidebar: React.FC = () => {
 
           <li>
             <Link
-              href="/create-reader"
+              href="/library/create-reader"
               className="flex items-center px-6 py-3 hover:bg-blue-700 hover:rounded-lg transition-all duration-300"
             >
               <FaUsers className="mr-3" /> Gestão de Usuários
