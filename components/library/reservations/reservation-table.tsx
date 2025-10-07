@@ -10,7 +10,7 @@ import {
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 import { Trash2, CheckCircle, XCircle } from "lucide-react";
-import { Reservation } from "../../../data/library/mock-reservations";
+import { Reservation, ReservationStatus } from "../../../types/reservations";
 
 interface ReservationTableProps {
   reservations: Reservation[];
@@ -25,13 +25,16 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
   onCompleteReservation,
   onCancelReservation,
 }) => {
-  const getStatusBadge = (status: Reservation["status"], position?: number) => {
-    const statusConfig = {
-      active: { label: "Ativa", variant: "default" as const },
-      ready: { label: "Pronta", variant: "default" as const },
-      waiting: { label: `Fila ${position}º`, variant: "secondary" as const },
-      completed: { label: "Concluída", variant: "outline" as const },
-      cancelled: { label: "Cancelada", variant: "destructive" as const },
+  const getStatusBadge = (status: ReservationStatus, position?: number) => {
+    const statusConfig: Record<
+      ReservationStatus,
+      { label: string; variant: "default" | "secondary" | "outline" | "destructive" }
+    > = {
+      active: { label: "Ativa", variant: "default" },
+      ready: { label: "Pronta", variant: "default" },
+      waiting: { label: position ? `Fila ${position}º` : "Fila", variant: "secondary" },
+      completed: { label: "Concluída", variant: "outline" },
+      cancelled: { label: "Cancelada", variant: "destructive" },
     };
 
     const config = statusConfig[status];

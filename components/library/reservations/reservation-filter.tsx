@@ -9,22 +9,21 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { Search, X } from "lucide-react";
+import { ReservationFilters as IReservationFilters } from "../../../types/reservations";
 
 interface FiltersProps {
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
-  statusFilter: string;
-  onStatusFilterChange: (value: string) => void;
+  filters: IReservationFilters;
+  onFiltersChange: (filters: IReservationFilters) => void;
   onClearFilters: () => void;
 }
 
-const ReservationFilters: React.FC<FiltersProps> = ({
-  searchTerm,
-  onSearchChange,
-  statusFilter,
-  onStatusFilterChange,
+const ReservationFiltersComponent: React.FC<FiltersProps> = ({
+  filters,
+  onFiltersChange,
   onClearFilters,
 }) => {
+  const hasActiveFilters = filters.searchTerm || filters.status !== "all";
+
   return (
     <div className="flex flex-col md:flex-row gap-4">
       <div className="flex-1 relative">
@@ -32,13 +31,20 @@ const ReservationFilters: React.FC<FiltersProps> = ({
         <Input
           type="text"
           placeholder="Buscar por leitor ou livro..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={filters.searchTerm || ""}
+          onChange={(e) =>
+            onFiltersChange({ ...filters, searchTerm: e.target.value })
+          }
           className="pl-10"
         />
       </div>
 
-      <Select value={statusFilter} onValueChange={onStatusFilterChange}>
+      <Select
+        value={filters.status || "all"}
+        onValueChange={(value) =>
+          onFiltersChange({ ...filters, status: value as any })
+        }
+      >
         <SelectTrigger className="w-full md:w-[200px]">
           <SelectValue placeholder="Filtrar por status" />
         </SelectTrigger>
@@ -52,7 +58,7 @@ const ReservationFilters: React.FC<FiltersProps> = ({
         </SelectContent>
       </Select>
 
-      {(searchTerm || statusFilter !== "all") && (
+      {hasActiveFilters && (
         <Button
           variant="outline"
           onClick={onClearFilters}
@@ -66,4 +72,4 @@ const ReservationFilters: React.FC<FiltersProps> = ({
   );
 };
 
-export default ReservationFilters;
+export default ReservationFiltersComponent;

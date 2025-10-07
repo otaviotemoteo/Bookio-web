@@ -1,15 +1,4 @@
-export interface Reservation {
-  id: string;
-  bookId: string;
-  bookTitle: string;
-  bookAuthor: string;
-  readerId: string;
-  readerName: string;
-  reservationDate: string;
-  status: "active" | "waiting" | "ready" | "completed" | "cancelled";
-  expirationDate?: string;
-  position?: number; // Para fila de espera
-}
+import { Reservation } from "../../types/reservations";
 
 export const mockReservations: Reservation[] = [
   {
@@ -19,9 +8,14 @@ export const mockReservations: Reservation[] = [
     bookAuthor: "George Orwell",
     readerId: "1",
     readerName: "Ana Silva",
+    readerEmail: "ana.silva@email.com",
     reservationDate: "2024-10-01",
     status: "ready",
     expirationDate: "2024-10-10",
+    readyDate: "2024-10-07",
+    priority: "normal",
+    createdAt: "2024-10-01T10:00:00Z",
+    updatedAt: "2024-10-07T14:30:00Z",
   },
   {
     id: "2",
@@ -30,8 +24,12 @@ export const mockReservations: Reservation[] = [
     bookAuthor: "J.R.R. Tolkien",
     readerId: "2",
     readerName: "Carlos Oliveira",
+    readerEmail: "carlos.oliveira@email.com",
     reservationDate: "2024-10-03",
     status: "active",
+    priority: "normal",
+    createdAt: "2024-10-03T11:20:00Z",
+    updatedAt: "2024-10-03T11:20:00Z",
   },
   {
     id: "3",
@@ -40,9 +38,14 @@ export const mockReservations: Reservation[] = [
     bookAuthor: "Machado de Assis",
     readerId: "3",
     readerName: "Beatriz Santos",
+    readerEmail: "beatriz.santos@email.com",
     reservationDate: "2024-10-04",
     status: "waiting",
     position: 1,
+    priority: "normal",
+    queueNotified: false,
+    createdAt: "2024-10-04T09:15:00Z",
+    updatedAt: "2024-10-04T09:15:00Z",
   },
   {
     id: "4",
@@ -51,9 +54,14 @@ export const mockReservations: Reservation[] = [
     bookAuthor: "Machado de Assis",
     readerId: "4",
     readerName: "Daniel Costa",
+    readerEmail: "daniel.costa@email.com",
     reservationDate: "2024-10-05",
     status: "waiting",
     position: 2,
+    priority: "normal",
+    queueNotified: false,
+    createdAt: "2024-10-05T15:45:00Z",
+    updatedAt: "2024-10-05T15:45:00Z",
   },
   {
     id: "5",
@@ -62,9 +70,14 @@ export const mockReservations: Reservation[] = [
     bookAuthor: "J.K. Rowling",
     readerId: "5",
     readerName: "Eduarda Lima",
+    readerEmail: "eduarda.lima@email.com",
     reservationDate: "2024-10-06",
     status: "ready",
     expirationDate: "2024-10-12",
+    readyDate: "2024-10-06",
+    priority: "high",
+    createdAt: "2024-10-06T08:30:00Z",
+    updatedAt: "2024-10-06T16:00:00Z",
   },
   {
     id: "6",
@@ -73,8 +86,12 @@ export const mockReservations: Reservation[] = [
     bookAuthor: "George Orwell",
     readerId: "6",
     readerName: "Fernando Alves",
+    readerEmail: "fernando.alves@email.com",
     reservationDate: "2024-10-07",
     status: "active",
+    priority: "normal",
+    createdAt: "2024-10-07T13:20:00Z",
+    updatedAt: "2024-10-07T13:20:00Z",
   },
   {
     id: "7",
@@ -83,9 +100,14 @@ export const mockReservations: Reservation[] = [
     bookAuthor: "J.R.R. Tolkien",
     readerId: "7",
     readerName: "Gabriela Martins",
+    readerEmail: "gabriela.martins@email.com",
     reservationDate: "2024-10-08",
     status: "waiting",
     position: 1,
+    priority: "normal",
+    queueNotified: false,
+    createdAt: "2024-10-08T10:10:00Z",
+    updatedAt: "2024-10-08T10:10:00Z",
   },
   {
     id: "8",
@@ -94,7 +116,12 @@ export const mockReservations: Reservation[] = [
     bookAuthor: "Gabriel García Márquez",
     readerId: "8",
     readerName: "Hugo Pereira",
+    readerEmail: "hugo.pereira@email.com",
     reservationDate: "2024-09-28",
     status: "completed",
+    completedDate: "2024-10-02",
+    priority: "normal",
+    createdAt: "2024-09-28T14:00:00Z",
+    updatedAt: "2024-10-02T11:30:00Z",
   },
 ];

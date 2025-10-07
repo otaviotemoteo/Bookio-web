@@ -2,49 +2,69 @@
 
 import React, { useState, useMemo } from "react";
 import { Card } from "../../../components/ui/card";
-import ReservationStats from "../../../components/library/reservations/reservation-stats";
-import ReservationFilters from "../../../components/library/reservations/reservation-filter";
+import ReservationStatsComponent from "../../../components/library/reservations/reservation-stats";
+import ReservationFiltersComponent from "../../../components/library/reservations/reservation-filter";
 import AddReservationDialog from "../../../components/library/reservations/add-reservation-dialog";
 import ReservationTable from "../../../components/library/reservations/reservation-table";
-import { mockReservations, Reservation } from "../../../data/library/mock-reservations";
+import { mockReservations } from "../../../data/library/mock-reservations";
 import { mockReaders } from "../../../data/library/mock-readers";
 import { useToast } from "../../../components/ui/use-toast";
+import {
+  Reservation,
+  ReservationFilters,
+  ReservationStats,
+  CreateReservationDTO,
+} from "../../../types/reservations";
 
 export default function ReservationsPage() {
-  const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [reservations, setReservations] =
+    useState<Reservation[]>(mockReservations);
+  const [filters, setFilters] = useState<ReservationFilters>({
+    status: "all",
+    searchTerm: "",
+  });
   const { toast } = useToast();
 
   // Filtrar reservas
   const filteredReservations = useMemo(() => {
     return reservations.filter((reservation) => {
       const matchesSearch =
-        reservation.readerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        reservation.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        reservation.bookAuthor.toLowerCase().includes(searchTerm.toLowerCase());
+        !filters.searchTerm ||
+        reservation.readerName
+          .toLowerCase()
+          .includes(filters.searchTerm.toLowerCase()) ||
+        reservation.bookTitle
+          .toLowerCase()
+          .includes(filters.searchTerm.toLowerCase()) ||
+        reservation.bookAuthor
+          .toLowerCase()
+          .includes(filters.searchTerm.toLowerCase());
 
       const matchesStatus =
-        statusFilter === "all" || reservation.status === statusFilter;
+        !filters.status ||
+        filters.status === "all" ||
+        reservation.status === filters.status;
 
       return matchesSearch && matchesStatus;
     });
-  }, [reservations, searchTerm, statusFilter]);
+  }, [reservations, filters]);
 
   // Calcular estatísticas
-  const stats = useMemo(() => {
+  const stats = useMemo((): ReservationStats => {
     return {
       active: reservations.filter((r) => r.status === "active").length,
       ready: reservations.filter((r) => r.status === "ready").length,
       waiting: reservations.filter((r) => r.status === "waiting").length,
+      completed: reservations.filter((r) => r.status === "completed").length,
+      cancelled: reservations.filter((r) => r.status === "cancelled").length,
       total: reservations.filter(
         (r) => r.status !== "completed" && r.status !== "cancelled"
       ).length,
     };
   }, [reservations]);
 
-  const handleAddReservation = (readerId: string, bookId: string) => {
-    const reader = mockReaders.find((r) => r.id === readerId);
+  const handleAddReservation = (data: CreateReservationDTO) => {
+    const reader = mockReaders.find((r) => r.id === data.readerId);
     const bookTitles: { [key: string]: { title: string; author: string } } = {
       b1: { title: "1984", author: "George Orwell" },
       b2: { title: "O Senhor dos Anéis", author: "J.R.R. Tolkien" },
@@ -54,17 +74,21 @@ export default function ReservationsPage() {
       b6: { title: "Cem Anos de Solidão", author: "Gabriel García Márquez" },
     };
 
-    const book = bookTitles[bookId];
+    const book = bookTitles[data.bookId];
 
     const newReservation: Reservation = {
       id: `${Date.now()}`,
-      bookId,
+      bookId: data.bookId,
       bookTitle: book.title,
       bookAuthor: book.author,
-      readerId,
+      readerId: data.readerId,
       readerName: reader?.name || "",
+      readerEmail: reader?.email,
       reservationDate: new Date().toISOString().split("T")[0],
       status: "active",
+      priority: data.priority || "normal",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     setReservations([newReservation, ...reservations]);
@@ -81,7 +105,14 @@ export default function ReservationsPage() {
   const handleCompleteReservation = (id: string) => {
     setReservations(
       reservations.map((r) =>
-        r.id === id ? { ...r, status: "completed" as const } : r
+        r.id === id
+          ? {
+              ...r,
+              status: "completed",
+              completedDate: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }
+          : r
       )
     );
     toast({
@@ -93,7 +124,14 @@ export default function ReservationsPage() {
   const handleCancelReservation = (id: string) => {
     setReservations(
       reservations.map((r) =>
-        r.id === id ? { ...r, status: "cancelled" as const } : r
+        r.id === id
+          ? {
+              ...r,
+              status: "cancelled",
+              cancelledDate: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }
+          : r
       )
     );
     toast({
@@ -104,8 +142,10 @@ export default function ReservationsPage() {
   };
 
   const handleClearFilters = () => {
-    setSearchTerm("");
-    setStatusFilter("all");
+    setFilters({
+      status: "all",
+      searchTerm: "",
+    });
   };
 
   return (
@@ -122,20 +162,13 @@ export default function ReservationsPage() {
         <AddReservationDialog onAddReservation={handleAddReservation} />
       </div>
 
-      <ReservationStats
-        active={stats.active}
-        ready={stats.ready}
-        waiting={stats.waiting}
-        total={stats.total}
-      />
+      <ReservationStatsComponent stats={stats} />
 
       <Card className="p-6">
         <div className="space-y-4">
-          <ReservationFilters
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
+          <ReservationFiltersComponent
+            filters={filters}
+            onFiltersChange={setFilters}
             onClearFilters={handleClearFilters}
           />
 

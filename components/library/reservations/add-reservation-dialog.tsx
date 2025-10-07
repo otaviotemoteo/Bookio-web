@@ -20,9 +20,10 @@ import {
 import { Plus } from "lucide-react";
 import { mockReaders } from "../../../data/library/mock-readers";
 import { useToast } from "../../ui/use-toast";
+import { CreateReservationDTO } from "../../../types/reservations";
 
 interface AddReservationDialogProps {
-  onAddReservation: (readerId: string, bookId: string) => void;
+  onAddReservation: (data: CreateReservationDTO) => void;
 }
 
 const AddReservationDialog: React.FC<AddReservationDialogProps> = ({
@@ -53,7 +54,13 @@ const AddReservationDialog: React.FC<AddReservationDialogProps> = ({
       return;
     }
 
-    onAddReservation(selectedReader, selectedBook);
+    const reservationData: CreateReservationDTO = {
+      readerId: selectedReader,
+      bookId: selectedBook,
+      priority: "normal",
+    };
+
+    onAddReservation(reservationData);
     toast({
       title: "Reserva criada",
       description: "A reserva foi adicionada com sucesso",
