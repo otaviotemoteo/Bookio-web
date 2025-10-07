@@ -13,7 +13,7 @@ export function HeroSection() {
           </div>
 
           <h1 className="mb-6 text-4xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl text-balance">
-            Modernize sua <span className="text-blue-600">Biblioteca</span> com o
+            Modernize sua <span className="text-primary">Biblioteca</span> com o
             Bookio
           </h1>
 
