@@ -33,7 +33,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="sm"
-              className="hidden md:inline-flex cursor-pointer"
+              className="hidden md:inline-flex cursor-pointer hover:bg-primary hover:text-white"
             >
               Entrar
             </Button>

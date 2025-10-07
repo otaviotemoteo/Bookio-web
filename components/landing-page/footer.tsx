@@ -6,7 +6,7 @@ export function Footer() {
       <div className="container py-12 md:py-16">
         <div className="flex flex-col items-center justify-center text-center space-y-4">
           <div className="flex items-center justify-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
               <BookOpen className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold text-foreground">Bookio</span>

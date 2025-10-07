@@ -7,13 +7,13 @@ export function HeroSection() {
     <section className="relative overflow-hidden bg-primary/5 py-20 md:py-32 min-h-screen flex items-center justify-center">
       <div className="container relative">
         <div className="mx-auto max-w-4xl text-center">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-blue-600">
             <BookOpen className="h-4 w-4" />
             Sistema Completo de Gerenciamento
           </div>
 
           <h1 className="mb-6 text-4xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl text-balance">
-            Modernize sua <span className="text-primary">Biblioteca</span> com o
+            Modernize sua <span className="text-blue-600">Biblioteca</span> com o
             Bookio
           </h1>
 
