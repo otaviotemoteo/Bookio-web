@@ -14,7 +14,7 @@ import {
   ReservationFilters,
   ReservationStats,
   CreateReservationDTO,
-} from "../../../types/reservations";
+} from "../../../types/library/reservations";
 
 export default function ReservationsPage() {
   const [reservations, setReservations] =

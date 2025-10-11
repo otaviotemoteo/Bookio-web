@@ -7,7 +7,7 @@ import { LoansFilters } from '../../../components/library/loans/loan-filters';
 import { NewLoanDialog } from '../../../components/library/loans/new-loan-dialog';
 import { ReturnDialog } from '../../../components/library/loans/return-dialog';
 import { mockLoans } from '../../../data/library/mock-loans';
-import { Loan, LoanFormData, ReturnFormData, LoanStatus } from '../../../types/loans';
+import { Loan, LoanFormData, ReturnFormData, LoanStatus } from '../../../types/library/loans';
 import { useToast } from '../../../components/ui/use-toast';
 
 export default function LoansPage() {
