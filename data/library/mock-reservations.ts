@@ -1,4 +1,4 @@
-import { Reservation } from "../../types/reservations";
+import { Reservation } from "../../types/library/reservations";
 
 export const mockReservations: Reservation[] = [
   {

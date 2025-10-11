@@ -1,6 +1,6 @@
 "use client";
 
-import type { AuthResponse, AuthSession } from "../types/auth";
+import type { AuthResponse, AuthSession } from "../types/library/auth";
 
 type SignInPayload = { email: string; password: string };
 type SignUpPayload = {

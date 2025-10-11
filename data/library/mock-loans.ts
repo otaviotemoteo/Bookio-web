@@ -1,4 +1,4 @@
-import { Loan }  from '../../types/loans';
+import { Loan }  from '../../types/library/loans';
 
 export const mockLoans: Loan[] = [
   {
