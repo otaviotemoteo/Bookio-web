@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     console.log("Dados recebidos:", JSON.stringify(body, null, 2));
 
     // Faz a requisição para a API externa
-    const apiUrl = "http://134.195.90.241:9000/api/library";
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/library`;
     console.log("Fazendo requisição para:", apiUrl);
 
     const response = await fetch(apiUrl, {
