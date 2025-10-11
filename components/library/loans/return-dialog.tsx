@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Label } from '../../ui/label';
 import { Textarea } from '../../ui/textarea';
-import { ReturnFormData } from '../../../types/loans';
+import { ReturnFormData } from '../../../types/library/loans';
 
 interface ReturnDialogProps {
   open: boolean;

@@ -20,7 +20,7 @@ import {
 import { Plus } from "lucide-react";
 import { mockReaders } from "../../../data/library/mock-readers";
 import { useToast } from "../../ui/use-toast";
-import { CreateReservationDTO } from "../../../types/reservations";
+import { CreateReservationDTO } from "../../../types/library/reservations";
 
 interface AddReservationDialogProps {
   onAddReservation: (data: CreateReservationDTO) => void;

@@ -3,7 +3,7 @@
 import { Input } from '../../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { Search } from 'lucide-react';
-import { LoanStatus } from '../../../types/loans';
+import { LoanStatus } from '../../../types/library/loans';
 
 interface LoansFiltersProps {
   searchTerm: string;

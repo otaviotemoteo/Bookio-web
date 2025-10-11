@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "../../ui/card";
 import { Clock, CheckCircle, AlertCircle, Users } from "lucide-react";
-import { ReservationStats } from "../../../types/reservations";
+import { ReservationStats } from "../../../types/library/reservations";
 
 interface StatsProps {
   stats: ReservationStats;

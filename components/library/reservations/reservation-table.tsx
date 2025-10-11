@@ -10,7 +10,7 @@ import {
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 import { Trash2, CheckCircle, XCircle } from "lucide-react";
-import { Reservation, ReservationStatus } from "../../../types/reservations";
+import { Reservation, ReservationStatus } from "../../../types/library/reservations";
 
 interface ReservationTableProps {
   reservations: Reservation[];

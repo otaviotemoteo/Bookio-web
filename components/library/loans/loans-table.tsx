@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loan } from '../../../types/loans';
+import { Loan } from '../../../types/library/loans';
 import {
   Table,
   TableBody,

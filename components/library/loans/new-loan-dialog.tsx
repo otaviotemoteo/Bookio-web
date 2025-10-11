@@ -5,7 +5,7 @@ import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Plus } from 'lucide-react';
-import { LoanFormData } from '../../../types/loans';
+import { LoanFormData } from '../../../types/library/loans';
 
 interface NewLoanDialogProps {
   onSubmit: (data: LoanFormData) => void;

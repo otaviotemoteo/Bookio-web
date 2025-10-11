@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { Search, X } from "lucide-react";
-import { ReservationFilters as IReservationFilters } from "../../../types/reservations";
+import { ReservationFilters as IReservationFilters } from "../../../types/library/reservations";
 
 interface FiltersProps {
   filters: IReservationFilters;
