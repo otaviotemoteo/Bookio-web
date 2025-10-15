@@ -1,22 +1,28 @@
-'use client';
+"use client";
 
-import { Input } from '../../ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
-import { Search } from 'lucide-react';
-import { LoanStatus } from '../../../types/library/loans';
+import { Input } from "../../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../ui/select";
+import { Filter, Search } from "lucide-react";
+import { LoanStatus } from "../../../types/library/loans";
 
 interface LoansFiltersProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  statusFilter: LoanStatus | 'all';
-  onStatusFilterChange: (value: LoanStatus | 'all') => void;
+  statusFilter: LoanStatus | "all";
+  onStatusFilterChange: (value: LoanStatus | "all") => void;
 }
 
 export function LoansFilters({
   searchTerm,
   onSearchChange,
   statusFilter,
-  onStatusFilterChange
+  onStatusFilterChange,
 }: LoansFiltersProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4">
@@ -31,6 +37,7 @@ export function LoansFilters({
       </div>
       <Select value={statusFilter} onValueChange={onStatusFilterChange}>
         <SelectTrigger className="w-full sm:w-[200px]">
+          <Filter className="w-4 h-4 mr-2" />
           <SelectValue placeholder="Filtrar por status" />
         </SelectTrigger>
         <SelectContent>

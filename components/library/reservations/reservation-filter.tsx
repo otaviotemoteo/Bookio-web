@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-import { Search, X } from "lucide-react";
+import { Filter, Search, X } from "lucide-react";
 import { ReservationFilters as IReservationFilters } from "../../../types/library/reservations";
 
 interface FiltersProps {
@@ -46,6 +46,7 @@ const ReservationFiltersComponent: React.FC<FiltersProps> = ({
         }
       >
         <SelectTrigger className="w-full md:w-[200px]">
+          <Filter className="w-4 h-4 mr-2" />
           <SelectValue placeholder="Filtrar por status" />
         </SelectTrigger>
         <SelectContent>
