@@ -84,23 +84,23 @@ export function ModulesSection() {
             <CardContent className="space-y-4">
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                   Catálogo online interativo
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                   Perfil pessoal e histórico
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                   Reservas e renovações online
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                   Sistema de favoritos
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                   Acompanhamento de pendências
                 </li>
               </ul>

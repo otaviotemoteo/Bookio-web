@@ -26,7 +26,15 @@ import {
   AlertDialogTitle,
 } from "../../../components/ui/alert-dialog";
 import { useToast } from "../../../components/ui/use-toast";
-import { Plus, Search, Filter } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Filter,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  Users,
+} from "lucide-react";
 
 export default function ReadersPage() {
   const { toast } = useToast();
@@ -165,28 +173,39 @@ export default function ReadersPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-card rounded-lg border p-6">
-          <div className="text-2xl font-bold">{readers.length}</div>
-          <div className="text-sm text-muted-foreground">Total de Leitores</div>
-        </div>
-        <div className="bg-card rounded-lg border p-6">
-          <div className="text-2xl font-bold">
-            {readers.filter((r) => (r.activeLoans || 0) > 0).length}
+        <div className="bg-card rounded-lg border p-6 flex items-center gap-4">
+          <Clock className="text-blue-500" />
+          <div>
+            <div className="text-2xl font-bold">2</div>
+            <div className="text-sm text-muted-foreground">Reservas Ativas</div>
           </div>
-          <div className="text-sm text-muted-foreground">Com Empréstimos</div>
         </div>
-        <div className="bg-card rounded-lg border p-6">
-          <div className="text-2xl font-bold">
-            {readers.filter((r) => (r.pendingFines || 0) > 0).length}
+
+        <div className="bg-card rounded-lg border p-6 flex items-center gap-4">
+          <CheckCircle className="text-green-500" />
+          <div>
+            <div className="text-2xl font-bold">2</div>
+            <div className="text-sm text-muted-foreground">
+              Prontas para Retirada
+            </div>
           </div>
-          <div className="text-sm text-muted-foreground">Com Multas</div>
         </div>
-        <div className="bg-card rounded-lg border p-6">
-          <div className="text-2xl font-bold">
-            {readers.reduce((sum, r) => sum + (r.totalLoans || 0), 0)}
+
+        <div className="bg-card rounded-lg border p-6 flex items-center gap-4">
+          <AlertTriangle className="text-orange-500" />
+          <div>
+            <div className="text-2xl font-bold">3</div>
+            <div className="text-sm text-muted-foreground">Fila de Espera</div>
           </div>
-          <div className="text-sm text-muted-foreground">
-            Total de Empréstimos
+        </div>
+
+        <div className="bg-card rounded-lg border p-6 flex items-center gap-4">
+          <Users className="text-purple-500" />
+          <div>
+            <div className="text-2xl font-bold">7</div>
+            <div className="text-sm text-muted-foreground">
+              Total de Reservas
+            </div>
           </div>
         </div>
       </div>

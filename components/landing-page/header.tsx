@@ -40,10 +40,7 @@ export function Header() {
           </Link>
 
           <Link href="/register">
-            <Button
-              size="sm"
-              className="cursor-pointer bg-primary hover:bg-primary/90"
-            >
+            <Button size="sm" className="cursor-pointer bg-primary">
               Criar Conta
             </Button>
           </Link>
