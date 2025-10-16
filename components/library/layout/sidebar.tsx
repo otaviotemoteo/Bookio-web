@@ -33,7 +33,7 @@ const menuItems = [
     label: "Controle de Multas",
   },
   {
-    href: "/library/create-reader",
+    href: "/library/readers",
     icon: <FaUsers />,
     label: "Gestão de Usuários",
   },
