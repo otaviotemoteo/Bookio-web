@@ -35,6 +35,7 @@ import {
   CheckCircle,
   Users,
 } from "lucide-react";
+import { ReadersStats } from "../../../components/library/create-reader/readers-stats";
 
 export default function ReadersPage() {
   const { toast } = useToast();
@@ -171,44 +172,12 @@ export default function ReadersPage() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-card rounded-lg border p-6 flex items-center gap-4">
-          <Clock className="text-blue-500" />
-          <div>
-            <div className="text-2xl font-bold">2</div>
-            <div className="text-sm text-muted-foreground">Reservas Ativas</div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border p-6 flex items-center gap-4">
-          <CheckCircle className="text-green-500" />
-          <div>
-            <div className="text-2xl font-bold">2</div>
-            <div className="text-sm text-muted-foreground">
-              Prontas para Retirada
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border p-6 flex items-center gap-4">
-          <AlertTriangle className="text-orange-500" />
-          <div>
-            <div className="text-2xl font-bold">3</div>
-            <div className="text-sm text-muted-foreground">Fila de Espera</div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border p-6 flex items-center gap-4">
-          <Users className="text-purple-500" />
-          <div>
-            <div className="text-2xl font-bold">7</div>
-            <div className="text-sm text-muted-foreground">
-              Total de Reservas
-            </div>
-          </div>
-        </div>
-      </div>
+      <ReadersStats
+        activeReservations={2}
+        readyForPickup={2}
+        waitingList={3}
+        totalReservations={7}
+      />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
