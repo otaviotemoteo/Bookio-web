@@ -6,10 +6,12 @@ interface LayoutProps {
 
 export default function LoansLayout({ children }: LayoutProps) {
   return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 p-6 overflow-y-auto">
+    <div className="flex h-screen overflow-hidden">
+      <div className="w-64 flex-shrink-0">
+        <Sidebar />
+      </div>
+      <div className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 p-6 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
       </div>
