@@ -5,6 +5,7 @@ import { useState } from "react";
 import BookCard from "../../../components/library/books/book-card";
 import AddBookModal from "../../../components/library/books/add-book-modal";
 import EditBookModal from "../../../components/library/books/edit-book-modal";
+import { BooksStats } from "../../../components/library/books/books-stats";
 
 export default function BooksPage() {
   const [books, setBooks] = useState<Book[]>([
@@ -76,6 +77,15 @@ export default function BooksPage() {
           </p>
         </div>
 
+        {/* Estatísticas */}
+        <div className="mb-8">
+          <BooksStats
+            totalBooks={books.length}
+            uniqueAuthors={new Set(books.map((b) => b.author)).size}
+            searchResults={filteredBooks.length}
+          />
+        </div>
+
         {/* Barra de Ações */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <div className="flex-1 relative">
@@ -129,28 +139,6 @@ export default function BooksPage() {
             ))}
           </div>
         )}
-
-        {/* Estatísticas */}
-        <div className="mt-8 bg-white rounded-xl shadow-sm p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-            <div>
-              <p className="text-3xl font-bold text-blue-600">{books.length}</p>
-              <p className="text-gray-600 mt-1">Total de Livros</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-green-600">
-                {new Set(books.map((b) => b.author)).size}
-              </p>
-              <p className="text-gray-600 mt-1">Autores Únicos</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-purple-600">
-                {filteredBooks.length}
-              </p>
-              <p className="text-gray-600 mt-1">Resultados da Busca</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Modais */}
