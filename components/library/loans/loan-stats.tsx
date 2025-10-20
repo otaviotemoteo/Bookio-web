@@ -1,5 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
-import { BookOpen, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import React from "react";
+import { Card } from "../../ui/card";
+import { BookOpen, Clock, AlertCircle, CheckCircle } from "lucide-react";
 
 interface LoansStatsProps {
   activeLoans: number;
@@ -8,75 +9,70 @@ interface LoansStatsProps {
   totalFines: number;
 }
 
-export function LoansStats({
+export const LoansStats: React.FC<LoansStatsProps> = ({
   activeLoans,
   overdueLoans,
   returnedToday,
-  totalFines
-}: LoansStatsProps) {
+  totalFines,
+}) => {
+  const statsDisplay = [
+    {
+      label: "Empréstimos Ativos",
+      value: activeLoans,
+      icon: BookOpen,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+      description: "Livros em circulação",
+    },
+    {
+      label: "Em Atraso",
+      value: overdueLoans,
+      icon: AlertCircle,
+      color: "text-red-600",
+      bgColor: "bg-red-50",
+      description: "Requerem atenção",
+    },
+    {
+      label: "Devolvidos Hoje",
+      value: returnedToday,
+      icon: CheckCircle,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      description: "Devoluções registradas",
+    },
+    {
+      label: "Multas Pendentes",
+      value: `R$ ${totalFines.toFixed(2)}`,
+      icon: Clock,
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      description: "Total a receber",
+    },
+  ];
+
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Empréstimos Ativos
-          </CardTitle>
-          <BookOpen className="h-4 w-4 text-blue-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{activeLoans}</div>
-          <p className="text-xs text-gray-500 mt-1">
-            Livros em circulação
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Em Atraso
-          </CardTitle>
-          <AlertCircle className="h-4 w-4 text-red-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-red-600">{overdueLoans}</div>
-          <p className="text-xs text-gray-500 mt-1">
-            Requerem atenção
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Devolvidos Hoje
-          </CardTitle>
-          <CheckCircle className="h-4 w-4 text-green-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-600">{returnedToday}</div>
-          <p className="text-xs text-gray-500 mt-1">
-            Devoluções registradas
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Multas Pendentes
-          </CardTitle>
-          <Clock className="h-4 w-4 text-orange-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-orange-600">
-            R$ {totalFines.toFixed(2)}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">
-            Total a receber
-          </p>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {statsDisplay.map((stat) => {
+        const Icon = stat.icon;
+        return (
+          <Card key={stat.label} className="p-4">
+            <div className="flex items-center gap-3">
+              <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+                <Icon className={`w-6 h-6 ${stat.color}`} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">{stat.label}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stat.value}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stat.description}
+                </p>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
-}
+};
