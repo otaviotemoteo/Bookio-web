@@ -10,7 +10,10 @@ import {
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 import { Trash2, CheckCircle, XCircle } from "lucide-react";
-import { Reservation, ReservationStatus } from "../../../types/library/reservations";
+import {
+  Reservation,
+  ReservationStatus,
+} from "../../../types/library/reservations";
 
 interface ReservationTableProps {
   reservations: Reservation[];
@@ -28,11 +31,17 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
   const getStatusBadge = (status: ReservationStatus, position?: number) => {
     const statusConfig: Record<
       ReservationStatus,
-      { label: string; variant: "default" | "secondary" | "outline" | "destructive" }
+      {
+        label: string;
+        variant: "default" | "secondary" | "outline" | "destructive";
+      }
     > = {
       active: { label: "Ativa", variant: "default" },
       ready: { label: "Pronta", variant: "default" },
-      waiting: { label: position ? `Fila ${position}º` : "Fila", variant: "secondary" },
+      waiting: {
+        label: position ? `Fila ${position}º` : "Fila",
+        variant: "secondary",
+      },
       completed: { label: "Concluída", variant: "outline" },
       cancelled: { label: "Cancelada", variant: "destructive" },
     };
@@ -89,9 +98,8 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                   {reservation.status === "ready" && (
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="green"
                       onClick={() => onCompleteReservation(reservation.id)}
-                      className="gap-1"
                     >
                       <CheckCircle className="w-4 h-4" />
                       Concluir
@@ -101,9 +109,8 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                     reservation.status === "waiting") && (
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="red"
                       onClick={() => onCancelReservation(reservation.id)}
-                      className="gap-1"
                     >
                       <XCircle className="w-4 h-4" />
                       Cancelar
@@ -111,7 +118,7 @@ const ReservationTable: React.FC<ReservationTableProps> = ({
                   )}
                   <Button
                     size="sm"
-                    variant="destructive"
+                    variant="red"
                     onClick={() => onDeleteReservation(reservation.id)}
                   >
                     <Trash2 className="w-4 h-4" />
