@@ -105,7 +105,7 @@ export function ReaderTable({
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
                     <Button
-                      variant="ghost"
+                      variant="gray"
                       size="icon"
                       onClick={() => onView(reader)}
                       title="Ver detalhes"
@@ -113,7 +113,7 @@ export function ReaderTable({
                       <Eye className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="blue"
                       size="icon"
                       onClick={() => onEdit(reader)}
                       title="Editar"
@@ -121,11 +121,10 @@ export function ReaderTable({
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="red"
                       size="icon"
                       onClick={() => onDelete(reader.id)}
                       title="Excluir"
-                      className="text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
