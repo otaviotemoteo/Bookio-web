@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Reader, CreateReaderData } from "../../../types/library/reader";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Reader } from "../../../types/library/reader";
 import { Button } from "../../ui/button";
 import {
   Dialog,
@@ -14,12 +17,29 @@ import {
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Loader2 } from "lucide-react";
+import { useToast } from "../../ui/use-toast";
+
+// Schema de validação com Zod
+const readerSchema = z.object({
+  name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
+  email: z.string().email("Email inválido"),
+  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "CPF inválido"),
+  address: z.object({
+    cep: z.string().regex(/^\d{5}-\d{3}$/, "CEP inválido"),
+    street: z.string().min(3, "Rua deve ter no mínimo 3 caracteres"),
+    neighborhood: z.string().min(2, "Bairro deve ter no mínimo 2 caracteres"),
+    city: z.string().min(2, "Cidade deve ter no mínimo 2 caracteres"),
+    number: z.string().min(1, "Número é obrigatório"),
+  }),
+});
+
+type ReaderFormData = z.infer<typeof readerSchema>;
 
 interface ReaderFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateReaderData, picture?: File) => void;
+  onSuccess?: () => void;
   reader?: Reader | null;
   libraryId: string;
 }
@@ -27,43 +47,54 @@ interface ReaderFormDialogProps {
 export function ReaderFormDialog({
   open,
   onOpenChange,
-  onSubmit,
+  onSuccess,
   reader,
   libraryId,
 }: ReaderFormDialogProps) {
-  const [formData, setFormData] = useState<CreateReaderData>({
-    name: "",
-    email: "",
-    cpf: "",
-    libraryId: libraryId,
-    address: {
-      cep: "",
-      street: "",
-      neighborhood: "",
-      city: "",
-      number: "",
+  const [pictureFile, setPictureFile] = useState<File | null>(null);
+  const [picturePreview, setPicturePreview] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+    watch,
+  } = useForm<ReaderFormData>({
+    resolver: zodResolver(readerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      cpf: "",
+      address: {
+        cep: "",
+        street: "",
+        neighborhood: "",
+        city: "",
+        number: "",
+      },
     },
   });
 
-  const [pictureFile, setPictureFile] = useState<File | null>(null);
-  const [picturePreview, setPicturePreview] = useState<string>("");
+  const formName = watch("name");
 
   useEffect(() => {
     if (reader) {
-      setFormData({
+      reset({
         name: reader.name,
         email: reader.email,
         cpf: reader.cpf,
-        libraryId: reader.libraryId,
         address: reader.address,
       });
       setPicturePreview(reader.picture || "");
     } else {
-      setFormData({
+      reset({
         name: "",
         email: "",
         cpf: "",
-        libraryId: libraryId,
         address: {
           cep: "",
           street: "",
@@ -75,11 +106,21 @@ export function ReaderFormDialog({
       setPicturePreview("");
       setPictureFile(null);
     }
-  }, [reader, libraryId, open]);
+  }, [reader, open, reset]);
 
   const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validar tamanho do arquivo (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Erro",
+          description: "A imagem deve ter no máximo 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setPictureFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -89,9 +130,60 @@ export function ReaderFormDialog({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData, pictureFile || undefined);
+  const onSubmit = async (data: ReaderFormData) => {
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+
+      // Adicionar os dados como JSON no campo "data"
+      const jsonData = {
+        name: data.name,
+        email: data.email,
+        cpf: data.cpf,
+        libraryId: libraryId,
+        address: data.address,
+      };
+
+      formData.append("data", JSON.stringify(jsonData));
+
+      // Adicionar a imagem se houver
+      if (pictureFile) {
+        formData.append("picture", pictureFile);
+      }
+
+      const response = await fetch("/api/reader", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erro ao criar leitor");
+      }
+
+      const result = await response.json();
+
+      toast({
+        title: "Sucesso!",
+        description: "Leitor cadastrado com sucesso. Senha enviada por email.",
+      });
+
+      onOpenChange(false);
+      onSuccess?.();
+    } catch (error) {
+      console.error("Erro ao criar leitor:", error);
+      toast({
+        title: "Erro",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Erro ao cadastrar leitor. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formatCPF = (value: string) => {
@@ -122,14 +214,14 @@ export function ReaderFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Foto de Perfil */}
           <div className="flex flex-col items-center gap-4">
             <Avatar className="h-24 w-24">
               <AvatarImage src={picturePreview} />
               <AvatarFallback>
-                {formData.name
-                  ? formData.name
+                {formName
+                  ? formName
                       .split(" ")
                       .map((n) => n[0])
                       .join("")
@@ -174,39 +266,39 @@ export function ReaderFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-1">
                 <Label htmlFor="name">Nome Completo *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
+                <Input id="name" {...register("name")} />
+                {errors.name && (
+                  <p className="text-sm text-destructive">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1">
                 <Label htmlFor="cpf">CPF *</Label>
                 <Input
                   id="cpf"
-                  value={formData.cpf}
-                  onChange={(e) =>
-                    setFormData({ ...formData, cpf: formatCPF(e.target.value) })
-                  }
                   placeholder="000.000.000-00"
                   maxLength={14}
-                  required
+                  {...register("cpf")}
+                  onChange={(e) => {
+                    const formatted = formatCPF(e.target.value);
+                    setValue("cpf", formatted);
+                  }}
                 />
+                {errors.cpf && (
+                  <p className="text-sm text-destructive">
+                    {errors.cpf.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1">
                 <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
-                />
+                <Input id="email" type="email" {...register("email")} />
+                {errors.email && (
+                  <p className="text-sm text-destructive">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -219,79 +311,58 @@ export function ReaderFormDialog({
                 <Label htmlFor="cep">CEP *</Label>
                 <Input
                   id="cep"
-                  value={formData.address.cep}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      address: {
-                        ...formData.address,
-                        cep: formatCEP(e.target.value),
-                      },
-                    })
-                  }
                   placeholder="00000-000"
                   maxLength={9}
-                  required
+                  {...register("address.cep")}
+                  onChange={(e) => {
+                    const formatted = formatCEP(e.target.value);
+                    setValue("address.cep", formatted);
+                  }}
                 />
+                {errors.address?.cep && (
+                  <p className="text-sm text-destructive">
+                    {errors.address.cep.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1">
                 <Label htmlFor="city">Cidade *</Label>
-                <Input
-                  id="city"
-                  value={formData.address.city}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      address: { ...formData.address, city: e.target.value },
-                    })
-                  }
-                  required
-                />
+                <Input id="city" {...register("address.city")} />
+                {errors.address?.city && (
+                  <p className="text-sm text-destructive">
+                    {errors.address.city.message}
+                  </p>
+                )}
               </div>
               <div className="col-span-2 space-y-1">
                 <Label htmlFor="street">Rua *</Label>
-                <Input
-                  id="street"
-                  value={formData.address.street}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      address: { ...formData.address, street: e.target.value },
-                    })
-                  }
-                  required
-                />
+                <Input id="street" {...register("address.street")} />
+                {errors.address?.street && (
+                  <p className="text-sm text-destructive">
+                    {errors.address.street.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1">
                 <Label htmlFor="neighborhood">Bairro *</Label>
                 <Input
                   id="neighborhood"
-                  value={formData.address.neighborhood}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      address: {
-                        ...formData.address,
-                        neighborhood: e.target.value,
-                      },
-                    })
-                  }
-                  required
+                  {...register("address.neighborhood")}
                 />
+                {errors.address?.neighborhood && (
+                  <p className="text-sm text-destructive">
+                    {errors.address.neighborhood.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1">
                 <Label htmlFor="number">Número *</Label>
-                <Input
-                  id="number"
-                  value={formData.address.number}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      address: { ...formData.address, number: e.target.value },
-                    })
-                  }
-                  required
-                />
+                <Input id="number" {...register("address.number")} />
+                {errors.address?.number && (
+                  <p className="text-sm text-destructive">
+                    {errors.address.number.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -301,10 +372,22 @@ export function ReaderFormDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
-            <Button type="submit">{reader ? "Atualizar" : "Cadastrar"}</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cadastrando...
+                </>
+              ) : reader ? (
+                "Atualizar"
+              ) : (
+                "Cadastrar"
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
