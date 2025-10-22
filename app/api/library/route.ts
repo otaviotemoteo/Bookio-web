@@ -2,13 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    // Pega os dados do body
     const body = await request.json();
 
-    console.log("========== INICIANDO CRIAÇÃO DE BIBLIOTECA ==========");
-    console.log("Dados recebidos:", JSON.stringify(body, null, 2));
-
-    // Faz a requisição para a API externa
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/library`;
     console.log("Fazendo requisição para:", apiUrl);
 
@@ -20,14 +15,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    console.log("Status da resposta:", response.status);
-    console.log("Headers da resposta:", response.headers);
-
-    // Tenta ler o body como texto primeiro
     const textBody = await response.text();
-    console.log("Body da resposta (texto):", textBody);
 
-    // Tenta parsear como JSON
     let data;
     try {
       data = textBody ? JSON.parse(textBody) : {};
@@ -44,9 +33,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("Dados parseados:", JSON.stringify(data, null, 2));
-
-    // Se deu erro na API externa
     if (!response.ok) {
       console.error("❌ Erro da API externa:", data);
       return NextResponse.json(
@@ -55,7 +41,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Sucesso!
     console.log("✅ Biblioteca criada com sucesso!");
     return NextResponse.json(data, { status: 201 });
 
