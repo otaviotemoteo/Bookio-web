@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    
+
     const dataString = formData.get("data") as string;
     if (!dataString) {
       return NextResponse.json(
@@ -31,9 +31,15 @@ export async function POST(request: NextRequest) {
     }
 
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/reader`;
+    console.log("📤 POST /reader:", apiUrl);
+
+    const token = request.headers.get("authorization");
 
     const response = await fetch(apiUrl, {
       method: "POST",
+      headers: {
+        ...(token && { Authorization: token }),
+      },
       body: backendFormData,
     });
 
@@ -45,11 +51,11 @@ export async function POST(request: NextRequest) {
     } catch (parseError) {
       console.error("❌ Erro ao parsear JSON:", parseError);
       console.log("Resposta recebida não é JSON válido:", textBody);
-      
+
       return NextResponse.json(
-        { 
+        {
           error: "API externa retornou resposta inválida",
-          details: textBody.slice(0, 200)
+          details: textBody.slice(0, 200),
         },
         { status: 500 }
       );
@@ -58,9 +64,10 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       console.error("❌ Erro da API externa:", data);
       return NextResponse.json(
-        { 
-          error: data.message || data.detail || data.error || "Erro ao criar leitor",
-          details: data
+        {
+          error:
+            data.message || data.detail || data.error || "Erro ao criar leitor",
+          details: data,
         },
         { status: response.status }
       );
@@ -68,7 +75,6 @@ export async function POST(request: NextRequest) {
 
     console.log("✅ Leitor criado com sucesso!");
     return NextResponse.json(data, { status: 201 });
-
   } catch (error: any) {
     console.error("❌ ERRO NO SERVIDOR:", error);
     console.error("Mensagem:", error.message);
