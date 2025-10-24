@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Input } from "../ui/input";
@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { FooterForm } from "./footer-form";
-import { useRouter } from "next/navigation";
+import { useToast } from "../ui/use-toast";
 
 const registerSchema = z
   .object({
@@ -19,15 +19,9 @@ const registerSchema = z
     email: z.string().email("Email inválido"),
     password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
     confirmPassword: z.string(),
-    cnpj: z
-      .string()
-      .min(14, "CNPJ deve ter 14 dígitos")
-      .regex(/^\d{14}$/, "CNPJ deve conter apenas números"),
+    cnpj: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/, "CNPJ inválido"),
     address: z.object({
-      cep: z
-        .string()
-        .min(8, "CEP deve ter 8 dígitos")
-        .regex(/^\d{8}$/, "CEP deve conter apenas números"),
+      cep: z.string().regex(/^\d{5}\-\d{3}$/, "CEP inválido"),
       street: z.string().min(3, "Rua deve ter pelo menos 3 caracteres"),
       neighborhood: z.string().min(2, "Bairro deve ter pelo menos 2 caracteres"),
       city: z.string().min(2, "Cidade deve ter pelo menos 2 caracteres"),
@@ -43,7 +37,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 interface RegisterFormProps {
   onNavigateToLogin?: () => void;
-  onRegisterSuccess?: (data: RegisterFormData) => void;
+  onRegisterSuccess?: () => void;
 }
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
@@ -52,12 +46,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setValue,
     watch,
   } = useForm<RegisterFormData>({
@@ -78,24 +72,30 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     },
   });
 
-  const cep = watch("address.cep");
-
   const formatCNPJ = (value: string) => {
-    const numbers = value.replace(/\D/g, "");
-    return numbers.slice(0, 14);
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{2})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1/$2")
+      .replace(/(\d{4})(\d)/, "$1-$2")
+      .replace(/(-\d{2})\d+?$/, "$1");
   };
 
   const formatCEP = (value: string) => {
-    const numbers = value.replace(/\D/g, "");
-    return numbers.slice(0, 8);
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{5})(\d)/, "$1-$2")
+      .replace(/(-\d{3})\d+?$/, "$1");
   };
 
   const searchCEP = async (cepValue: string) => {
-    if (cepValue.length === 8) {
+    const cleanCep = cepValue.replace(/\D/g, "");
+    if (cleanCep.length === 8) {
       try {
-        const response = await fetch(`https://viacep.com.br/ws/${cepValue}/json/`);
+        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
         const data = await response.json();
-        
+
         if (!data.erro) {
           setValue("address.street", data.logradouro);
           setValue("address.neighborhood", data.bairro);
@@ -108,14 +108,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   };
 
   const onSubmit = async (data: RegisterFormData) => {
-    setLoading(true);
     try {
       // Remove o confirmPassword antes de enviar
       const { confirmPassword, ...registerData } = data;
 
-      console.log("Enviando dados:", registerData);
+      console.log("📤 Enviando dados de registro:", registerData);
 
-      // Chama a API Route do Next.js
       const response = await fetch("/api/library", {
         method: "POST",
         headers: {
@@ -127,106 +125,111 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       const result = await response.json();
 
       if (!response.ok) {
-        // Mostra o erro da API
-        const errorMessage = result.error || "Erro ao criar conta";
-        console.error("Erro ao criar conta:", errorMessage);
-        alert(errorMessage);
+        toast({
+          title: "Erro ao criar conta",
+          description: result.error || "Verifique os dados e tente novamente.",
+          variant: "destructive",
+        });
         return;
       }
 
-      // Sucesso!
-      console.log("✅ Conta criada com sucesso:", result);
-      alert("🎉 Conta criada com sucesso!");
-      onRegisterSuccess?.(data);
+      toast({
+        title: "Conta criada com sucesso! 🎉",
+        description: "Você já pode fazer login.",
+      });
+
+      onRegisterSuccess?.();
 
     } catch (error) {
-      console.error("Erro no registro:", error);
-      alert("Erro ao criar conta. Verifique sua conexão e tente novamente.");
-    } finally {
-      setLoading(false);
+      console.error("❌ Erro no registro:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao conectar com o servidor.",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <Card className="w-full max-w-2xl bg-white backdrop-blur-sm border-white/20 shadow-xl">
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <Card className="w-full max-w-4xl bg-white shadow-xl">
         <HeaderForm
           title="Criar sua conta"
           subtitle="Junte-se ao Bookio e modernize sua biblioteca"
         />
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
+        <CardContent className="p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Dados Principais - 2 colunas */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
-                  Nome completo
-                </Label>
+                <Label htmlFor="name">Nome completo *</Label>
                 <Input
                   {...register("name")}
                   id="name"
                   placeholder="João Silva"
-                  className="bg-gray-50 border-gray-200 focus:bg-white"
                 />
                 {errors.name && (
-                  <p className="text-red-500 text-sm font-medium">
-                    {errors.name.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.name.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
-                  Email
-                </Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   {...register("email")}
                   id="email"
                   type="email"
                   placeholder="seu@email.com"
-                  className="bg-gray-50 border-gray-200 focus:bg-white"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm font-medium">
-                    {errors.email.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.email.message}</p>
                 )}
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="cnpj" className="text-sm font-semibold text-gray-700">
-                CNPJ
-              </Label>
-              <Input
-                {...register("cnpj")}
-                id="cnpj"
-                placeholder="00000000000000"
-                maxLength={14}
-                onChange={(e) => {
-                  const formatted = formatCNPJ(e.target.value);
-                  e.target.value = formatted;
-                }}
-                className="bg-gray-50 border-gray-200 focus:bg-white"
-              />
-              {errors.cnpj && (
-                <p className="text-red-500 text-sm font-medium">
-                  {errors.cnpj.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
-                  Senha
-                </Label>
+                <Label htmlFor="cnpj">CNPJ *</Label>
+                <Input
+                  {...register("cnpj")}
+                  id="cnpj"
+                  placeholder="00.000.000/0000-00"
+                  maxLength={18}
+                  onChange={(e) => {
+                    const formatted = formatCNPJ(e.target.value);
+                    setValue("cnpj", formatted);
+                  }}
+                />
+                {errors.cnpj && (
+                  <p className="text-sm text-destructive">{errors.cnpj.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cep">CEP *</Label>
+                <Input
+                  {...register("address.cep")}
+                  id="cep"
+                  placeholder="00000-000"
+                  maxLength={9}
+                  onChange={(e) => {
+                    const formatted = formatCEP(e.target.value);
+                    setValue("address.cep", formatted);
+                    searchCEP(formatted);
+                  }}
+                />
+                {errors.address?.cep && (
+                  <p className="text-sm text-destructive">{errors.address.cep.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha *</Label>
                 <div className="relative">
                   <Input
                     {...register("password")}
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="bg-gray-50 border-gray-200 focus:bg-white pr-10"
+                    className="pr-10"
                   />
                   <Button
                     type="button"
@@ -235,31 +238,23 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
                 {errors.password && (
-                  <p className="text-red-500 text-sm font-medium">
-                    {errors.password.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.password.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700">
-                  Confirmar senha
-                </Label>
+                <Label htmlFor="confirmPassword">Confirmar senha *</Label>
                 <div className="relative">
                   <Input
                     {...register("confirmPassword")}
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="bg-gray-50 border-gray-200 focus:bg-white pr-10"
+                    className="pr-10"
                   />
                   <Button
                     type="button"
@@ -268,135 +263,90 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm font-medium">
-                    {errors.confirmPassword.message}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
                 )}
               </div>
             </div>
 
-            <div className="border-t pt-4 mt-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Endereço</h3>
-              
+            {/* Endereço - 3 colunas */}
+            <div className="border-t pt-4">
+              <h3 className="text-sm font-semibold mb-3">Endereço</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cep" className="text-sm font-semibold text-gray-700">
-                    CEP
-                  </Label>
-                  <Input
-                    {...register("address.cep")}
-                    id="cep"
-                    placeholder="00000000"
-                    maxLength={8}
-                    onChange={(e) => {
-                      const formatted = formatCEP(e.target.value);
-                      e.target.value = formatted;
-                      setValue("address.cep", formatted);
-                      searchCEP(formatted);
-                    }}
-                    className="bg-gray-50 border-gray-200 focus:bg-white"
-                  />
-                  {errors.address?.cep && (
-                    <p className="text-red-500 text-sm font-medium">
-                      {errors.address.cep.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="street" className="text-sm font-semibold text-gray-700">
-                    Rua
-                  </Label>
+                <div className="md:col-span-2 space-y-2">
+                  <Label htmlFor="street">Rua *</Label>
                   <Input
                     {...register("address.street")}
                     id="street"
                     placeholder="Rua das Flores"
-                    className="bg-gray-50 border-gray-200 focus:bg-white"
                   />
                   {errors.address?.street && (
-                    <p className="text-red-500 text-sm font-medium">
-                      {errors.address.street.message}
-                    </p>
+                    <p className="text-sm text-destructive">{errors.address.street.message}</p>
                   )}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="number" className="text-sm font-semibold text-gray-700">
-                    Número
-                  </Label>
+                  <Label htmlFor="number">Número *</Label>
                   <Input
                     {...register("address.number")}
                     id="number"
                     placeholder="123"
-                    className="bg-gray-50 border-gray-200 focus:bg-white"
                   />
                   {errors.address?.number && (
-                    <p className="text-red-500 text-sm font-medium">
-                      {errors.address.number.message}
-                    </p>
+                    <p className="text-sm text-destructive">{errors.address.number.message}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="neighborhood" className="text-sm font-semibold text-gray-700">
-                    Bairro
-                  </Label>
+                  <Label htmlFor="neighborhood">Bairro *</Label>
                   <Input
                     {...register("address.neighborhood")}
                     id="neighborhood"
                     placeholder="Centro"
-                    className="bg-gray-50 border-gray-200 focus:bg-white"
                   />
                   {errors.address?.neighborhood && (
-                    <p className="text-red-500 text-sm font-medium">
-                      {errors.address.neighborhood.message}
-                    </p>
+                    <p className="text-sm text-destructive">{errors.address.neighborhood.message}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="city" className="text-sm font-semibold text-gray-700">
-                    Cidade
-                  </Label>
+                  <Label htmlFor="city">Cidade *</Label>
                   <Input
                     {...register("address.city")}
                     id="city"
                     placeholder="São Paulo"
-                    className="bg-gray-50 border-gray-200 focus:bg-white"
                   />
                   {errors.address?.city && (
-                    <p className="text-red-500 text-sm font-medium">
-                      {errors.address.city.message}
-                    </p>
+                    <p className="text-sm text-destructive">{errors.address.city.message}</p>
                   )}
                 </div>
               </div>
             </div>
-          </div>
 
-          <Button
-            onClick={handleSubmit(onSubmit)}
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-200"
-            disabled={loading}
-          >
-            {loading ? "Criando conta..." : "Criar conta"}
-          </Button>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Criando conta...
+                </>
+              ) : (
+                "Criar conta"
+              )}
+            </Button>
 
-          <FooterForm
-            text="Já tem uma conta?"
-            linkText="Logar"
-            onLinkClick={onNavigateToLogin}
-          />
+            <FooterForm
+              text="Já tem uma conta?"
+              linkText="Fazer login"
+              onLinkClick={onNavigateToLogin}
+            />
+          </form>
         </CardContent>
       </Card>
     </div>
