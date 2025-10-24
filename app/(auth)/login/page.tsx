@@ -1,21 +1,32 @@
 "use client";
 
 import { LoginForm } from "../../../components/forms/login-form";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
 
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
-
-  const handleLoginSuccess = (data: any) => {
-    console.log("Login realizado:", data);
-    router.push(callbackUrl);
+  const handleLoginSuccess = async () => {
+    const token = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('token='))
+      ?.split('=')[1];
+      
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      
+      if (payload.role === 'LIBRARY') {
+        router.push('/library/dashboard');
+      } else if (payload.role === 'READER') {
+        router.push('/reader/dashboard');
+      }
+    } else {
+      router.push('/library/dashboard');
+    }
   };
 
   const handleNavigateToRegister = () => {
-    router.push(`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+    router.push("/register");
   };
 
   return (
