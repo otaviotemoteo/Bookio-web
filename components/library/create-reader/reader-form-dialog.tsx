@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Reader } from "../../../types/library/reader";
+import { Reader, CreateReaderData } from "../../../types/library/reader";
 import { Button } from "../../ui/button";
 import {
   Dialog,
@@ -39,21 +39,22 @@ type ReaderFormData = z.infer<typeof readerSchema>;
 interface ReaderFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSubmit: (data: CreateReaderData, picture?: File) => void | Promise<void>; // 🆕 Adicionado
   reader?: Reader | null;
   libraryId: string;
+  loading?: boolean;
 }
 
 export function ReaderFormDialog({
   open,
   onOpenChange,
-  onSuccess,
+  onSubmit,
   reader,
   libraryId,
+  loading = false,
 }: ReaderFormDialogProps) {
   const [pictureFile, setPictureFile] = useState<File | null>(null);
   const [picturePreview, setPicturePreview] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -130,59 +131,35 @@ export function ReaderFormDialog({
     }
   };
 
-  const onSubmit = async (data: ReaderFormData) => {
-    setIsSubmitting(true);
-
+  const handleFormSubmit = async (data: ReaderFormData) => {
     try {
-      const formData = new FormData();
-
-      // Adicionar os dados como JSON no campo "data"
-      const jsonData = {
+      // Preparar dados no formato esperado pela API
+      const readerData: CreateReaderData = {
         name: data.name,
         email: data.email,
         cpf: data.cpf,
         libraryId: libraryId,
-        address: data.address,
+        address: {
+          cep: data.address.cep,
+          street: data.address.street,
+          neighborhood: data.address.neighborhood,
+          city: data.address.city,
+          number: data.address.number,
+        },
       };
 
-      formData.append("data", JSON.stringify(jsonData));
+      // Chamar o onSubmit passado como prop (vem da página)
+      await onSubmit(readerData, pictureFile || undefined);
 
-      // Adicionar a imagem se houver
-      if (pictureFile) {
-        formData.append("picture", pictureFile);
+      // Limpar o formulário após sucesso (a página já mostra o toast)
+      if (!reader) {
+        reset();
+        setPictureFile(null);
+        setPicturePreview("");
       }
-
-      const response = await fetch("/api/reader", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erro ao criar leitor");
-      }
-
-      const result = await response.json();
-
-      toast({
-        title: "Sucesso!",
-        description: "Leitor cadastrado com sucesso. Senha enviada por email.",
-      });
-
-      onOpenChange(false);
-      onSuccess?.();
     } catch (error) {
-      console.error("Erro ao criar leitor:", error);
-      toast({
-        title: "Erro",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Erro ao cadastrar leitor. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+      // O erro já é tratado na página, mas podemos logar aqui se necessário
+      console.error("Erro no formulário:", error);
     }
   };
 
@@ -214,7 +191,7 @@ export function ReaderFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           {/* Foto de Perfil */}
           <div className="flex flex-col items-center gap-4">
             <Avatar className="h-24 w-24">
@@ -242,6 +219,7 @@ export function ReaderFormDialog({
                   accept="image/*"
                   className="hidden"
                   onChange={handlePictureChange}
+                  disabled={loading}
                 />
               </Label>
               {picturePreview && (
@@ -253,6 +231,7 @@ export function ReaderFormDialog({
                     setPictureFile(null);
                     setPicturePreview("");
                   }}
+                  disabled={loading}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -266,7 +245,7 @@ export function ReaderFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-1">
                 <Label htmlFor="name">Nome Completo *</Label>
-                <Input id="name" {...register("name")} />
+                <Input id="name" {...register("name")} disabled={loading} />
                 {errors.name && (
                   <p className="text-sm text-destructive">
                     {errors.name.message}
@@ -284,6 +263,7 @@ export function ReaderFormDialog({
                     const formatted = formatCPF(e.target.value);
                     setValue("cpf", formatted);
                   }}
+                  disabled={loading}
                 />
                 {errors.cpf && (
                   <p className="text-sm text-destructive">
@@ -293,7 +273,12 @@ export function ReaderFormDialog({
               </div>
               <div className="space-y-1">
                 <Label htmlFor="email">Email *</Label>
-                <Input id="email" type="email" {...register("email")} />
+                <Input
+                  id="email"
+                  type="email"
+                  {...register("email")}
+                  disabled={loading}
+                />
                 {errors.email && (
                   <p className="text-sm text-destructive">
                     {errors.email.message}
@@ -318,6 +303,7 @@ export function ReaderFormDialog({
                     const formatted = formatCEP(e.target.value);
                     setValue("address.cep", formatted);
                   }}
+                  disabled={loading}
                 />
                 {errors.address?.cep && (
                   <p className="text-sm text-destructive">
@@ -327,7 +313,11 @@ export function ReaderFormDialog({
               </div>
               <div className="space-y-1">
                 <Label htmlFor="city">Cidade *</Label>
-                <Input id="city" {...register("address.city")} />
+                <Input
+                  id="city"
+                  {...register("address.city")}
+                  disabled={loading}
+                />
                 {errors.address?.city && (
                   <p className="text-sm text-destructive">
                     {errors.address.city.message}
@@ -336,7 +326,11 @@ export function ReaderFormDialog({
               </div>
               <div className="col-span-2 space-y-1">
                 <Label htmlFor="street">Rua *</Label>
-                <Input id="street" {...register("address.street")} />
+                <Input
+                  id="street"
+                  {...register("address.street")}
+                  disabled={loading}
+                />
                 {errors.address?.street && (
                   <p className="text-sm text-destructive">
                     {errors.address.street.message}
@@ -348,6 +342,7 @@ export function ReaderFormDialog({
                 <Input
                   id="neighborhood"
                   {...register("address.neighborhood")}
+                  disabled={loading}
                 />
                 {errors.address?.neighborhood && (
                   <p className="text-sm text-destructive">
@@ -357,7 +352,11 @@ export function ReaderFormDialog({
               </div>
               <div className="space-y-1">
                 <Label htmlFor="number">Número *</Label>
-                <Input id="number" {...register("address.number")} />
+                <Input
+                  id="number"
+                  {...register("address.number")}
+                  disabled={loading}
+                />
                 {errors.address?.number && (
                   <p className="text-sm text-destructive">
                     {errors.address.number.message}
@@ -372,15 +371,15 @@ export function ReaderFormDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={loading}
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
+            <Button type="submit" disabled={loading}>
+              {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Cadastrando...
+                  {reader ? "Atualizando..." : "Cadastrando..."}
                 </>
               ) : reader ? (
                 "Atualizar"

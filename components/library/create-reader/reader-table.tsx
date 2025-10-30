@@ -15,7 +15,7 @@ import { Pencil, Trash2, Eye } from "lucide-react";
 interface ReaderTableProps {
   readers: Reader[];
   onEdit: (reader: Reader) => void;
-  onDelete: (readerId: string) => void;
+  onDelete: (reader: Reader) => void;
   onView: (reader: Reader) => void;
 }
 
@@ -123,7 +123,7 @@ export function ReaderTable({
                     <Button
                       variant="red"
                       size="icon"
-                      onClick={() => onDelete(reader.id)}
+                      onClick={() => onDelete(reader)}
                       title="Excluir"
                     >
                       <Trash2 className="h-4 w-4" />
