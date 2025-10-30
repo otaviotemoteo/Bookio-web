@@ -8,6 +8,7 @@ export interface Address {
 
 export interface Reader {
   id: string;
+  userId: string;
   name: string;
   email: string;
   cpf: string;
@@ -24,8 +25,8 @@ export interface Reader {
 export interface CreateReaderData {
   name: string;
   email: string;
-  libraryId: string;
   cpf: string;
+  libraryId: string;
   address: Address;
 }
 
