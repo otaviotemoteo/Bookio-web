@@ -3,6 +3,7 @@ import { Reader } from "../../types/library/reader";
 export const mockReaders: Reader[] = [
   {
     id: "550e8400-e29b-41d4-a716-446655440001",
+    userId: "user-001",
     name: "João Silva Santos",
     email: "joao.silva@email.com",
     cpf: "123.456.789-00",
@@ -23,6 +24,7 @@ export const mockReaders: Reader[] = [
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440002",
+    userId: "user-002",
     name: "Maria Oliveira Costa",
     email: "maria.oliveira@email.com",
     cpf: "987.654.321-00",
@@ -43,6 +45,7 @@ export const mockReaders: Reader[] = [
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440003",
+    userId: "user-003",
     name: "Pedro Henrique Almeida",
     email: "pedro.almeida@email.com",
     cpf: "456.789.123-00",
@@ -62,6 +65,7 @@ export const mockReaders: Reader[] = [
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440004",
+    userId: "user-004",
     name: "Ana Carolina Ferreira",
     email: "ana.ferreira@email.com",
     cpf: "321.654.987-00",
@@ -82,6 +86,7 @@ export const mockReaders: Reader[] = [
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440005",
+    userId: "user-005",
     name: "Lucas Mendes Rodrigues",
     email: "lucas.mendes@email.com",
     cpf: "789.123.456-00",
@@ -102,6 +107,7 @@ export const mockReaders: Reader[] = [
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440006",
+    userId: "user-006",
     name: "Juliana Santos Lima",
     email: "juliana.lima@email.com",
     cpf: "654.987.321-00",
@@ -121,6 +127,7 @@ export const mockReaders: Reader[] = [
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440007",
+    userId: "user-007",
     name: "Rafael Costa Barbosa",
     email: "rafael.barbosa@email.com",
     cpf: "147.258.369-00",
@@ -141,6 +148,7 @@ export const mockReaders: Reader[] = [
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440008",
+    userId: "user-008",
     name: "Camila Fernandes Souza",
     email: "camila.souza@email.com",
     cpf: "258.369.147-00",
