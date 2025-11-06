@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { decodeToken } from "./lib/auth";
+import { decodeToken } from "./lib/services/auth";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
@@ -32,7 +32,7 @@ export function middleware(request: NextRequest) {
   }
 
   const user = decodeToken(token);
-  
+
   if (!user) {
     console.log("❌ Token inválido ou expirado, redirecionando para /login");
     const response = NextResponse.redirect(new URL("/login", request.url));
@@ -41,7 +41,7 @@ export function middleware(request: NextRequest) {
   }
 
   console.log("👤 Usuário autenticado:", user.role, user.id);
-  
+
   // Rotas /library/* são apenas para LIBRARY
   if (pathname.startsWith("/library") && user.role !== "LIBRARY") {
     console.log("❌ Acesso negado: tentou acessar /library sem ser LIBRARY");
