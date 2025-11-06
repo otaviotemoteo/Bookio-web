@@ -52,18 +52,23 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
-    // Decodifica o token e retorna os dados do usuário
+    // ✅ DECODIFICA O TOKEN E RETORNA O USER COMPLETO
     const decoded = jwtDecode<any>(data.token);
+
+    console.log("🔍 Token decodificado:", decoded);
+
     const user = {
-      id: decoded.id,
+      id: decoded.id || decoded.sub, // Alguns tokens usam 'sub' ao invés de 'id'
       email: decoded.email || "",
       role: decoded.role,
     };
 
+    console.log("👤 User retornado:", user);
+
     return NextResponse.json({
       success: true,
       message: "Login realizado com sucesso",
-      user, // Retorna os dados do usuário!
+      user, // ✅ Retorna o user com ID!
     });
   } catch (error: any) {
     console.error("❌ ERRO NO SERVIDOR:", error);

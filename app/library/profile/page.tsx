@@ -11,21 +11,33 @@ import { ProfileDeleteDialog } from "../../../components/library/profile/profile
 import { Loader2 } from "lucide-react";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { getLibrary, isLoading } = useLibrary();
   const [library, setLibrary] = useState<Library | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
+  console.log("🔍 ProfilePage - user:", user);
+  console.log("🔍 ProfilePage - authLoading:", authLoading);
+  console.log("🔍 ProfilePage - library:", library);
+  console.log("🔍 ProfilePage - isLoading:", isLoading);
+
   useEffect(() => {
+    console.log("🔄 useEffect disparado - user:", user);
     if (user?.id) {
       loadLibrary();
     }
   }, [user]);
 
   const loadLibrary = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.log("❌ Sem user.id");
+      return;
+    }
 
+    console.log("📤 Buscando biblioteca:", user.id);
     const result = await getLibrary(user.id);
+    console.log("📥 Resultado:", result);
+
     if (result.success && result.data) {
       setLibrary(result.data);
     }
@@ -36,10 +48,31 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  // Mostra loading enquanto carrega auth
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <span className="ml-2">Carregando autenticação...</span>
+      </div>
+    );
+  }
+
+  // Se não tem user, mostra erro
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-red-500">Usuário não autenticado</p>
+      </div>
+    );
+  }
+
+  // Mostra loading enquanto busca biblioteca
   if (isLoading || !library) {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <span className="ml-2">Carregando biblioteca...</span>
       </div>
     );
   }
