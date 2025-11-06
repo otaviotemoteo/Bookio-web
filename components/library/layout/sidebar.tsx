@@ -11,15 +11,28 @@ import {
   FaRegMoneyBillAlt,
   FaCalendarAlt,
   FaSignOutAlt,
+  FaUserCircle,
 } from "react-icons/fa";
 import { BookOpen } from "lucide-react";
 
 const menuItems = [
   { href: "/library/dashboard", icon: <FaTachometerAlt />, label: "Dashboard" },
   { href: "/library/books", icon: <FaBook />, label: "Gestão do Acervo" },
-  { href: "/library/loans", icon: <FaClipboardList />, label: "Empréstimos / Devoluções" },
-  { href: "/library/reservations", icon: <FaCalendarAlt />, label: "Gestão de Reservas" },
-  { href: "/library/payments", icon: <FaRegMoneyBillAlt />, label: "Controle de Multas" },
+  {
+    href: "/library/loans",
+    icon: <FaClipboardList />,
+    label: "Empréstimos / Devoluções",
+  },
+  {
+    href: "/library/reservations",
+    icon: <FaCalendarAlt />,
+    label: "Gestão de Reservas",
+  },
+  {
+    href: "/library/payments",
+    icon: <FaRegMoneyBillAlt />,
+    label: "Controle de Multas",
+  },
   { href: "/library/readers", icon: <FaUsers />, label: "Gestão de Usuários" },
 ];
 
@@ -30,7 +43,7 @@ const Sidebar: React.FC = () => {
     try {
       const res = await fetch("/api/logout", { method: "POST" });
       if (res.ok) {
-        router.push("/"); // ✅ Redireciona pro login
+        router.push("/");
       }
     } catch (error) {
       console.error("Erro ao sair:", error);
@@ -60,10 +73,18 @@ const Sidebar: React.FC = () => {
         </ul>
       </nav>
 
-      <div className="px-4 py-4 border-t border-blue-100">
+      <div className="px-2 py-4 border-t border-blue-100 space-y-1">
+        <Link
+          href="/library/profile"
+          className="flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-100 hover:text-blue-800 transition-colors duration-200"
+        >
+          <FaUserCircle className="text-blue-600" />
+          Perfil
+        </Link>
+
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 text-sm font-medium text-blue-700 hover:text-red-600 hover:bg-red-50 px-3 py-2 rounded-md transition-colors duration-200"
+          className="w-full flex items-center gap-3 text-sm font-medium text-blue-700 hover:text-red-600 hover:bg-red-50 px-4 py-2 rounded-md transition-colors duration-200"
         >
           <FaSignOutAlt className="text-red-500" />
           Sair
