@@ -13,7 +13,7 @@ import {
   calculatePenaltyStats,
   filterPenalties,
   formatCurrency,
-} from "../../../lib/penalty-utils";
+} from "../../../lib/services/penalty";
 
 export default function PaymentsPage() {
   const [penalties, setPenalties] = useState<Penalty[]>(mockPenalties);
