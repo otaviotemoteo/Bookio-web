@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Reader, CreateReaderData } from "../../../types/library/reader";
-import { ReadersService } from "../../../services/reader-service";
+import { ReadersService } from "../../../lib/services/reader";
 import { ReaderTable } from "../../../components/library/create-reader/reader-table";
 import { ReaderFormDialog } from "../../../components/library/create-reader/reader-form-dialog";
 import { ReaderDetailDialog } from "../../../components/library/create-reader/reader-details-dialog";
@@ -26,12 +26,7 @@ import {
   AlertDialogTitle,
 } from "../../../components/ui/alert-dialog";
 import { useToast } from "../../../components/ui/use-toast";
-import {
-  Plus,
-  Search,
-  Filter,
-  Loader2,
-} from "lucide-react";
+import { Plus, Search, Filter, Loader2 } from "lucide-react";
 import { ReadersStats } from "../../../components/library/create-reader/readers-stats";
 
 export default function ReadersPage() {
@@ -98,7 +93,7 @@ export default function ReadersPage() {
     try {
       setActionLoading(true);
       const newReader = await ReadersService.createReader(data, picture);
-      
+
       setReaders([...readers, newReader]);
       setFormDialogOpen(false);
 
@@ -166,7 +161,7 @@ export default function ReadersPage() {
         description: `${readerToDelete.name} foi removido do sistema.`,
         variant: "destructive",
       });
-      
+
       setReaderToDelete(null);
     } catch (error: any) {
       toast({
@@ -297,8 +292,8 @@ export default function ReadersPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O leitor {readerToDelete?.name} será
-              permanentemente removido do sistema.
+              Esta ação não pode ser desfeita. O leitor {readerToDelete?.name}{" "}
+              será permanentemente removido do sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
