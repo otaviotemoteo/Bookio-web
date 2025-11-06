@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
-    // NOVO: Decodifica o token e retorna os dados do usuário
+    // Decodifica o token e retorna os dados do usuário
     const decoded = jwtDecode<any>(data.token);
     const user = {
       id: decoded.id,
