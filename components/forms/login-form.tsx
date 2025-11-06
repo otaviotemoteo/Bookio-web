@@ -13,6 +13,7 @@ import { z } from "zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useToast } from "../ui/use-toast";
 import { useSearchParams } from "next/navigation";
+import { useAuth } from "../.././hooks/use-auth";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -23,16 +24,15 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
   onNavigateToRegister?: () => void;
-  onLoginSuccess?: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onNavigateToRegister,
-  onLoginSuccess,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const { login } = useAuth();
 
   const {
     register,
@@ -59,17 +59,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     try {
       console.log("📤 Tentando fazer login:", data.email);
 
-      const response = await fetch("/api/authenticate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const result = await login(data.email, data.password);
 
-      const result = await response.json();
-
-      if (!response.ok) {
+      if (!result.success) {
         toast({
           title: "Erro ao fazer login",
           description: result.error || "Email ou senha incorretos.",
@@ -85,8 +77,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         description: "Redirecionando...",
       });
 
-      onLoginSuccess?.();
-
+      // O redirecionamento já é feito pelo hook useAuth
     } catch (error) {
       console.error("❌ Erro no login:", error);
       toast({
@@ -157,11 +148,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
