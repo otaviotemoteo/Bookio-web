@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { jwtDecode } from "jwt-decode";
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,11 +52,19 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
+    // NOVO: Decodifica o token e retorna os dados do usuário
+    const decoded = jwtDecode<any>(data.token);
+    const user = {
+      id: decoded.id,
+      email: decoded.email || "",
+      role: decoded.role,
+    };
+
     return NextResponse.json({
       success: true,
       message: "Login realizado com sucesso",
+      user, // Retorna os dados do usuário!
     });
-
   } catch (error: any) {
     console.error("❌ ERRO NO SERVIDOR:", error);
     return NextResponse.json(
