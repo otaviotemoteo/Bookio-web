@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { LoanService } from "@/services/loan-service";
-
-const loanService = new LoanService();
+import { loanService } from "../../../../lib/services/loan";
 
 // GET /api/loans/:loanId - Buscar empréstimo por ID
 export async function GET(
@@ -9,7 +7,7 @@ export async function GET(
   { params }: { params: { loanId: string } }
 ) {
   try {
-    const loan = await loanService.getLoanById(params.loanId);
+    const loan = await loanService.getLoan(params.loanId);
 
     if (!loan) {
       return NextResponse.json(

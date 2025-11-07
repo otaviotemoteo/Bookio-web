@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { LoanService } from "@/services/loan-service";
-
-const loanService = new LoanService();
+import { loanService } from "../../../../../lib/services/loan";
 
 // GET /api/loans/:loanId/status - Verificar status do empréstimo
 export async function GET(

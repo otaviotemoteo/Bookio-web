@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { LoanService } from "@/services/loan-service";
-import { CreateLoanRequest } from "@/types";
-
-const loanService = new LoanService();
+import { loanService } from "../../../lib/services/loan";
+import { CreateLoanRequest } from "../../../types/loan";
 
 // POST /api/loans - Criar empréstimo
 export async function POST(req: NextRequest) {
