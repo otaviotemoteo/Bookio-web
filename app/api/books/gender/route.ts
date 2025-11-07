@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { BookService } from "@/services/book-service";
+import { bookService } from "../../../../lib/services/book";
 import { BookGender } from "../../../../types/index";
-
-const bookService = new BookService();
 
 const validGenders: BookGender[] = [
   "Fiction",

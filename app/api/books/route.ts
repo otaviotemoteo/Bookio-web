@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { BookService } from "../../../lib/services/book";
-
-const bookService = new BookService();
+import { bookService } from "../../../lib/services/book";
 
 // POST /api/books - Criar novo livro
 export async function POST(req: NextRequest) {
@@ -18,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const data = JSON.parse(dataString);
-    const result = await bookService.createBook(data, image);
+    const result = await bookService.createBook(data, image ?? undefined);
 
     return NextResponse.json({ book: result }, { status: 201 });
   } catch (error: any) {

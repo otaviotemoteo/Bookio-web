@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { BookService } from "@/services/book-service";
-
-const bookService = new BookService();
+import { bookService } from "../../../../lib/services/book";
 
 // GET /api/books/:bookId - Buscar livro por ID
 export async function GET(
@@ -9,7 +7,7 @@ export async function GET(
   { params }: { params: { bookId: string } }
 ) {
   try {
-    const book = await bookService.getBookById(params.bookId);
+    const book = await bookService.getBook(params.bookId);
 
     if (!book) {
       return NextResponse.json(
@@ -43,7 +41,11 @@ export async function PUT(
       data = JSON.parse(dataString);
     }
 
-    const result = await bookService.updateBook(params.bookId, data, image);
+    const result = await bookService.updateBook(
+      params.bookId,
+      data,
+      image ?? undefined
+    );
 
     return NextResponse.json({ book: result });
   } catch (error: any) {
