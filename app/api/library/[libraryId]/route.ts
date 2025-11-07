@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function GET(
   request: NextRequest,
@@ -7,17 +8,20 @@ export async function GET(
   try {
     const { libraryId } = params;
 
+    const token = cookies().get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/library/${libraryId}`;
     console.log("📤 GET /library/:id:", apiUrl);
-
-    // Pegar token do header se existir
-    const token = request.headers.get("authorization");
 
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: token }),
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -64,17 +68,20 @@ export async function PUT(
     const { libraryId } = params;
     const body = await request.json();
 
+    const token = cookies().get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/library/${libraryId}`;
     console.log("📤 PUT /library/:id:", apiUrl);
-
-    // Pegar token do header
-    const token = request.headers.get("authorization");
 
     const response = await fetch(apiUrl, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: token }),
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(body),
     });
