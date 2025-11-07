@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SchedulingService } from "@/services/scheduling-service";
-import { CreateSchedulingRequest } from "@/types";
-
-const schedulingService = new SchedulingService();
+import { schedulingService } from "../../../lib/services/scheduling";
+import { CreateSchedulingRequest } from "../../../types/scheduling";
 
 // POST /api/schedulings - Criar agendamento
 export async function POST(req: NextRequest) {

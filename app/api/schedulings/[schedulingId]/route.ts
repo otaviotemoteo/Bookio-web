@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SchedulingService } from "@/services/scheduling-service";
-
-const schedulingService = new SchedulingService();
+import { schedulingService } from "../../../../lib/services/scheduling";
 
 // GET /api/schedulings/:schedulingId - Buscar agendamento por ID
 export async function GET(
@@ -9,7 +7,7 @@ export async function GET(
   { params }: { params: { schedulingId: string } }
 ) {
   try {
-    const scheduling = await schedulingService.getSchedulingById(
+    const scheduling = await schedulingService.getScheduling(
       params.schedulingId
     );
 
