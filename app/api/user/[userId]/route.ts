@@ -1,42 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = params;
+    const { id } = params;
 
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`;
+    const token = cookies().get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/${id}`;
     console.log("📤 DELETE /user/:id:", apiUrl);
-
-    const token = request.headers.get("authorization");
 
     const response = await fetch(apiUrl, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: token }),
+        Authorization: `Bearer ${token}`,
       },
     });
 
-    const textBody = await response.text();
-    let data;
-
-    try {
-      data = textBody ? JSON.parse(textBody) : {};
-    } catch (parseError) {
-      console.error("❌ Erro ao parsear JSON:", parseError);
-      return NextResponse.json(
-        {
-          error: "API externa retornou resposta inválida",
-          details: textBody.slice(0, 200),
-        },
-        { status: 500 }
-      );
-    }
-
     if (!response.ok) {
+      const textBody = await response.text();
+      let data;
+
+      try {
+        data = textBody ? JSON.parse(textBody) : {};
+      } catch {
+        data = { message: "Erro ao excluir usuário" };
+      }
+
       console.error("❌ Erro da API:", data);
       return NextResponse.json(
         { error: data.message || "Erro ao excluir usuário" },
@@ -45,7 +43,10 @@ export async function DELETE(
     }
 
     console.log("✅ Usuário excluído com sucesso!");
-    return NextResponse.json(data);
+
+    cookies().delete("token");
+
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("❌ ERRO NO SERVIDOR:", error);
     return NextResponse.json(
