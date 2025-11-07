@@ -1,5 +1,4 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+const API_BASE_URL = "/api";
 
 interface RequestOptions extends RequestInit {
   token?: string;
@@ -16,19 +15,7 @@ class ApiService {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
     };
-
-    // Adiciona token se existir
-    const token = options?.token || this.getStoredToken();
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
     return headers;
-  }
-
-  private getStoredToken(): string | null {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("token");
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {
@@ -53,9 +40,12 @@ class ApiService {
   }
 
   async get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
+    console.log(`📤 GET ${this.baseUrl}${endpoint}`);
+
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "GET",
       headers: this.getHeaders(options),
+      credentials: "include",
       ...options,
     });
 
@@ -67,10 +57,13 @@ class ApiService {
     data?: any,
     options?: RequestOptions
   ): Promise<T> {
+    console.log(`📤 POST ${this.baseUrl}${endpoint}`);
+
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "POST",
       headers: this.getHeaders(options),
       body: JSON.stringify(data),
+      credentials: "include",
       ...options,
     });
 
@@ -82,10 +75,13 @@ class ApiService {
     data?: any,
     options?: RequestOptions
   ): Promise<T> {
+    console.log(`📤 PUT ${this.baseUrl}${endpoint}`);
+
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "PUT",
       headers: this.getHeaders(options),
       body: JSON.stringify(data),
+      credentials: "include",
       ...options,
     });
 
@@ -97,10 +93,13 @@ class ApiService {
     data?: any,
     options?: RequestOptions
   ): Promise<T> {
+    console.log(`📤 PATCH ${this.baseUrl}${endpoint}`);
+
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "PATCH",
       headers: this.getHeaders(options),
       body: JSON.stringify(data),
+      credentials: "include",
       ...options,
     });
 
@@ -108,9 +107,12 @@ class ApiService {
   }
 
   async delete<T>(endpoint: string, options?: RequestOptions): Promise<T> {
+    console.log(`📤 DELETE ${this.baseUrl}${endpoint}`);
+
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "DELETE",
       headers: this.getHeaders(options),
+      credentials: "include",
       ...options,
     });
 
@@ -123,18 +125,12 @@ class ApiService {
     formData: FormData,
     options?: RequestOptions
   ): Promise<T> {
-    const token = options?.token || this.getStoredToken();
-
-    const headers: HeadersInit = {};
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    // Não adicionar Content-Type, o browser adiciona automaticamente com boundary
+    console.log(`📤 UPLOAD ${this.baseUrl}${endpoint}`);
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "POST",
-      headers,
       body: formData,
+      credentials: "include",
       ...options,
     });
 
@@ -147,17 +143,12 @@ class ApiService {
     formData: FormData,
     options?: RequestOptions
   ): Promise<T> {
-    const token = options?.token || this.getStoredToken();
-
-    const headers: HeadersInit = {};
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+    console.log(`📤 UPDATE FILE ${this.baseUrl}${endpoint}`);
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "PUT",
-      headers,
       body: formData,
+      credentials: "include",
       ...options,
     });
 
