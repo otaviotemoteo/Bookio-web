@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PenaltyService } from "@/services/penalty-service";
-
-const penaltyService = new PenaltyService();
+import { penaltyService } from "../../../../lib/services/penalty";
 
 // GET /api/penalties/:penalityId - Buscar multa por ID
 // Nota: A API usa "penalityId" (com typo) no path
@@ -10,7 +8,7 @@ export async function GET(
   { params }: { params: { penalityId: string } }
 ) {
   try {
-    const penalty = await penaltyService.getPenaltyById(params.penalityId);
+    const penalty = await penaltyService.getPenalty(params.penalityId);
 
     if (!penalty) {
       return NextResponse.json(

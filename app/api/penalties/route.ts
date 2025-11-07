@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PenaltyService } from "@/services/penalty-service";
-import { CreatePenaltyRequest } from "@/types";
-
-const penaltyService = new PenaltyService();
+import { penaltyService } from "../../../lib/services/penalty";
+import { CreatePenaltyRequest } from "../../../types/penalty";
 
 // POST /api/penalties - Criar multa
 export async function POST(req: NextRequest) {

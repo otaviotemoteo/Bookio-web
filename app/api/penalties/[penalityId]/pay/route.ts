@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PenaltyService } from "@/services/penalty-service";
-
-const penaltyService = new PenaltyService();
+import { penaltyService } from "../../../../../lib/services/penalty";
 
 // PATCH /api/penalties/:penalityId/pay - Pagar multa
 export async function PATCH(
