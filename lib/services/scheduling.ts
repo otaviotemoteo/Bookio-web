@@ -15,7 +15,7 @@ class SchedulingService {
   }
 
   // Cancelar agendamento
-  async cancelScheduling(id: string): Promise<void> {
+  async deleteScheduling(id: string): Promise<void> {
     return api.delete(`/schedulings/${id}`);
   }
 }
