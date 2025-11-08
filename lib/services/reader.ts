@@ -3,12 +3,18 @@ import {
   CreateReaderRequest,
   UpdateReaderRequest,
   ReaderResponse,
+  ReadersListResponse,
   LoansListResponse,
   PenaltiesListResponse,
   SchedulingsListResponse,
 } from "../../types/index";
 
 class ReaderService {
+  // Listar todos os leitores de uma biblioteca
+  async listReaders(libraryId: string): Promise<ReadersListResponse> {
+    return api.get(`/library/${libraryId}/readers`);
+  }
+
   // Criar leitor
   async createReader(data: CreateReaderRequest, picture?: File): Promise<void> {
     const formData = new FormData();
@@ -43,6 +49,11 @@ class ReaderService {
     }
 
     return api.updateWithFile(`/reader/${id}`, formData);
+  }
+
+  // Deletar leitor (deleta o user do leitor)
+  async deleteReader(userId: string): Promise<void> {
+    return api.delete(`/user/${userId}`);
   }
 
   // Listar empréstimos do leitor
