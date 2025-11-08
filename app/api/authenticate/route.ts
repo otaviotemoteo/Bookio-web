@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
 
     console.log("✅ Autenticado com sucesso!");
 
-    // Salva o token em cookie httpOnly
     cookies().set("token", data.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -52,13 +51,12 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
-    // ✅ DECODIFICA O TOKEN E RETORNA O USER COMPLETO
     const decoded = jwtDecode<any>(data.token);
 
     console.log("🔍 Token decodificado:", decoded);
 
     const user = {
-      id: decoded.id || decoded.sub, // Alguns tokens usam 'sub' ao invés de 'id'
+      id: decoded.id || decoded.sub,
       email: decoded.email || "",
       role: decoded.role,
     };
@@ -68,7 +66,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Login realizado com sucesso",
-      user, // ✅ Retorna o user com ID!
+      user,
     });
   } catch (error: any) {
     console.error("❌ ERRO NO SERVIDOR:", error);

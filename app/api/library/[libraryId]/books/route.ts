@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function GET(
   request: NextRequest,
@@ -7,17 +8,20 @@ export async function GET(
   try {
     const { libraryId } = params;
 
-    // Note: A URL correta é /libraries (plural) no backend
+    const token = cookies().get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/libraries/${libraryId}/books`;
     console.log("📤 GET /libraries/:id/books:", apiUrl);
-
-    const token = request.headers.get("authorization");
 
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: token }),
+        Authorization: `Bearer ${token}`,
       },
     });
 
