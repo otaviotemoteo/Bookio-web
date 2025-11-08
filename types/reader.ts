@@ -27,6 +27,10 @@ export interface Reader {
   address: Address;
   role: "READER";
   createdAt: string;
+  updatedAt?: string;
+  activeLoans?: number;
+  pendingFines?: number;
+  totalLoans?: number;
 }
 
 export interface ReaderResponse {
