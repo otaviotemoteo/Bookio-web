@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function GET(
   request: NextRequest,
@@ -7,16 +8,17 @@ export async function GET(
   try {
     const { readerId } = params;
 
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/reader/${readerId}`;
     console.log("📤 GET /reader/:id:", apiUrl);
-
-    const token = request.headers.get("authorization");
 
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: token }),
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
     });
 
@@ -57,13 +59,16 @@ export async function PUT(
 ) {
   try {
     const { readerId } = params;
-    
+
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
     const formData = await request.formData();
-    
+
     const dataString = formData.get("data") as string;
-    
+
     const backendFormData = new FormData();
-    
+
     if (dataString) {
       backendFormData.append("data", dataString);
     }
@@ -76,27 +81,25 @@ export async function PUT(
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/reader/${readerId}`;
     console.log("📤 PUT /reader/:id:", apiUrl);
 
-    const token = request.headers.get("authorization");
-
     const response = await fetch(apiUrl, {
       method: "PUT",
       headers: {
-        ...(token && { Authorization: token }),
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: backendFormData,
     });
 
     const textBody = await response.text();
     let data;
-    
+
     try {
       data = textBody ? JSON.parse(textBody) : {};
     } catch (parseError) {
       console.error("❌ Erro ao parsear JSON:", parseError);
       return NextResponse.json(
-        { 
+        {
           error: "API externa retornou resposta inválida",
-          details: textBody.slice(0, 200)
+          details: textBody.slice(0, 200),
         },
         { status: 500 }
       );
@@ -105,9 +108,9 @@ export async function PUT(
     if (!response.ok) {
       console.error("❌ Erro da API:", data);
       return NextResponse.json(
-        { 
+        {
           error: data.message || "Erro ao atualizar leitor",
-          details: data
+          details: data,
         },
         { status: response.status }
       );
@@ -115,7 +118,6 @@ export async function PUT(
 
     console.log("✅ Leitor atualizado com sucesso!");
     return NextResponse.json(data);
-
   } catch (error: any) {
     console.error("❌ ERRO NO SERVIDOR:", error);
     return NextResponse.json(

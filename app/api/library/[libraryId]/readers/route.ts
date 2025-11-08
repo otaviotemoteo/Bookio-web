@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function GET(
   request: NextRequest,
@@ -7,16 +8,17 @@ export async function GET(
   try {
     const { libraryId } = params;
 
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/library/${libraryId}/readers`;
     console.log("📤 GET /library/:id/readers:", apiUrl);
-
-    const token = request.headers.get("authorization");
 
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: token }),
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
     });
 
