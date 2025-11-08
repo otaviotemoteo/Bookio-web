@@ -1,21 +1,85 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Upload, X, Loader2 } from "lucide-react";
+import { useBook } from "../../../hooks/use-book";
+import { BookGender } from "../../../types/index";
+
+const bookSchema = z.object({
+  title: z.string().min(1, "Título é obrigatório"),
+  author: z.string().min(1, "Autor é obrigatório"),
+  gender: z.enum(
+    [
+      "Fiction",
+      "NonFiction",
+      "Fantasy",
+      "ScienceFiction",
+      "Mystery",
+      "Romance",
+      "Thriller",
+      "Horror",
+      "Biography",
+      "History",
+      "Poetry",
+      "SelfHelp",
+    ],
+    { required_error: "Gênero é obrigatório" }
+  ),
+  year: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida (formato: AAAA-MM-DD)"),
+  available: z.number().min(0, "Quantidade deve ser no mínimo 0"),
+});
+
+type BookFormData = z.infer<typeof bookSchema>;
 
 interface AddBookModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (title: string, author: string) => void;
+  onSuccess: () => void;
+  libraryId: string;
 }
+
+const GENDER_LABELS: Record<BookGender, string> = {
+  Fiction: "Ficção",
+  NonFiction: "Não-ficção",
+  Fantasy: "Fantasia",
+  ScienceFiction: "Ficção Científica",
+  Mystery: "Mistério",
+  Romance: "Romance",
+  Thriller: "Thriller",
+  Horror: "Terror",
+  Biography: "Biografia",
+  History: "História",
+  Poetry: "Poesia",
+  SelfHelp: "Autoajuda",
+};
 
 const AddBookModal: React.FC<AddBookModalProps> = ({
   isOpen,
   onClose,
-  onSave,
+  onSuccess,
+  libraryId,
 }) => {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
   const [isVisible, setIsVisible] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { createBook, isLoading, error } = useBook();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<BookFormData>({
+    resolver: zodResolver(bookSchema),
+    defaultValues: {
+      available: 1,
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -26,16 +90,47 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(() => {
+      reset();
+      setImageFile(null);
+      setImagePreview(null);
       onClose();
     }, 200);
   };
 
-  const handleSubmit = () => {
-    if (title.trim() && author.trim()) {
-      onSave(title, author);
-      setTitle("");
-      setAuthor("");
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const onSubmit = async (data: BookFormData) => {
+    console.log("📚 Adicionando livro:", data.title);
+
+    const result = await createBook(
+      {
+        ...data,
+        libraryId,
+      },
+      imageFile || undefined
+    );
+
+    if (result.success) {
+      console.log("✅ Livro adicionado!");
       handleClose();
+      onSuccess();
+    } else {
+      console.error("❌ Erro:", result.error);
     }
   };
 
@@ -49,82 +144,175 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
       <div
-        className={`bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-200 ${
+        className={`bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-200 ${
           isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4 text-gray-900">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900">
             Adicionar Novo Livro
           </h2>
-          <div className="space-y-4">
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Upload de Imagem */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Título
+                Imagem da Capa
+              </label>
+              <div className="flex items-center gap-4">
+                {imagePreview ? (
+                  <div className="relative">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-32 h-48 object-cover rounded-lg border-2 border-gray-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="w-full h-48 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-500">Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Título */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Título *
               </label>
               <input
                 type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                {...register("title")}
                 placeholder="Digite o título..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none transition-all"
-                onFocus={(e) => {
-                  e.target.style.borderColor = "rgb(58, 123, 236)";
-                  e.target.style.boxShadow =
-                    "0 0 0 3px rgba(58, 123, 236, 0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "rgb(209, 213, 219)";
-                  e.target.style.boxShadow = "none";
-                }}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.title.message}
+                </p>
+              )}
             </div>
 
+            {/* Autor */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Autor
+                Autor *
               </label>
               <input
                 type="text"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
+                {...register("author")}
                 placeholder="Digite o nome do autor..."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none transition-all"
-                onFocus={(e) => {
-                  e.target.style.borderColor = "rgb(58, 123, 236)";
-                  e.target.style.boxShadow =
-                    "0 0 0 3px rgba(58, 123, 236, 0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "rgb(209, 213, 219)";
-                  e.target.style.boxShadow = "none";
-                }}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {errors.author && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.author.message}
+                </p>
+              )}
             </div>
-          </div>
 
-          <div className="flex justify-end gap-3 mt-6">
-            <button
-              onClick={handleClose}
-              className="px-5 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-medium"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="px-5 py-2.5 text-white rounded-lg transition-all font-medium shadow-sm hover:shadow-md"
-              style={{ backgroundColor: "rgb(58, 123, 236)" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "rgb(48, 108, 206)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "rgb(58, 123, 236)")
-              }
-            >
-              Salvar
-            </button>
-          </div>
+            {/* Gênero e Ano */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Gênero *
+                </label>
+                <select
+                  {...register("gender")}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Selecione...</option>
+                  {Object.entries(GENDER_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                {errors.gender && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.gender.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ano de Publicação *
+                </label>
+                <input
+                  type="date"
+                  {...register("year")}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {errors.year && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.year.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Quantidade Disponível */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quantidade Disponível *
+              </label>
+              <input
+                type="number"
+                {...register("available", { valueAsNumber: true })}
+                min="0"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.available && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.available.message}
+                </p>
+              )}
+            </div>
+
+            {/* Erro geral */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            {/* Botões */}
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={isLoading}
+                className="px-5 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-medium disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-50 flex items-center gap-2"
+              >
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Salvar
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
