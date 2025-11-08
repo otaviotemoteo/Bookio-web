@@ -6,6 +6,23 @@ export function useReader() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Listar leitores
+  const listReaders = async (libraryId: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await readerService.listReaders(libraryId);
+      return { success: true, data: response.readers };
+    } catch (err: any) {
+      const errorMessage = err.message || "Erro ao listar leitores";
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Criar leitor
   const createReader = async (data: CreateReaderRequest, picture?: File) => {
     setIsLoading(true);
@@ -54,6 +71,23 @@ export function useReader() {
       return { success: true, data: response.reader };
     } catch (err: any) {
       const errorMessage = err.message || "Erro ao atualizar leitor";
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Deletar leitor (recebe userId)
+  const deleteReader = async (userId: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await readerService.deleteReader(userId);
+      return { success: true };
+    } catch (err: any) {
+      const errorMessage = err.message || "Erro ao deletar leitor";
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
@@ -115,9 +149,11 @@ export function useReader() {
   return {
     isLoading,
     error,
+    listReaders,
     createReader,
     getReader,
     updateReader,
+    deleteReader,
     getReaderLoans,
     getReaderPenalties,
     getReaderSchedulings,
