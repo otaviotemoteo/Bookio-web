@@ -1,8 +1,11 @@
+// page.tsx
+
 "use client";
 
 import { useState, useEffect } from "react";
-import { Reader, CreateReaderData } from "../../../types/library/reader";
-import { ReadersService } from "../../../lib/services/reader";
+import { Reader, CreateReaderRequest } from "../../../types/index";
+import { useReader } from "../../../hooks/use-reader";
+import { useAuth } from "../../../hooks/use-auth";
 import { ReaderTable } from "../../../components/library/create-reader/reader-table";
 import { ReaderFormDialog } from "../../../components/library/create-reader/reader-form-dialog";
 import { ReaderDetailDialog } from "../../../components/library/create-reader/reader-details-dialog";
@@ -31,6 +34,9 @@ import { ReadersStats } from "../../../components/library/create-reader/readers-
 
 export default function ReadersPage() {
   const { toast } = useToast();
+  const { user } = useAuth(); // 🔥 Pegar o user autenticado
+  const { listReaders, createReader, updateReader, deleteReader } = useReader();
+
   const [readers, setReaders] = useState<Reader[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -46,24 +52,34 @@ export default function ReadersPage() {
   const [selectedReader, setSelectedReader] = useState<Reader | null>(null);
   const [readerToDelete, setReaderToDelete] = useState<Reader | null>(null);
 
-  // TODO: Pegar o libraryId do contexto de autenticação ou session
-  // Por enquanto usando um mock, mas você deve substituir isso
-  const libraryId = "library-001"; // ⚠️ SUBSTITUIR COM O ID REAL DA BIBLIOTECA LOGADA
+  // Usar user.id como libraryId
+  const libraryId = user?.id || "";
 
   // Carregar leitores ao montar o componente
   useEffect(() => {
-    loadReaders();
-  }, []);
+    if (libraryId) {
+      loadReaders();
+    }
+  }, [libraryId]);
 
   const loadReaders = async () => {
     try {
       setLoading(true);
-      const data = await ReadersService.listReaders(libraryId);
-      setReaders(data);
+      const result = await listReaders(libraryId);
+
+      if (result.success && result.data) {
+        setReaders(result.data);
+      } else {
+        toast({
+          title: "Erro ao carregar leitores",
+          description: result.error || "Erro desconhecido",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Erro ao carregar leitores",
-        description: error.message,
+        description: error.message || "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -89,22 +105,35 @@ export default function ReadersPage() {
     return matchesSearch && matchesFilter;
   });
 
-  const handleCreateReader = async (data: CreateReaderData, picture?: File) => {
+  const handleCreateReader = async (
+    data: CreateReaderRequest,
+    picture?: File
+  ) => {
     try {
       setActionLoading(true);
-      const newReader = await ReadersService.createReader(data, picture);
+      const result = await createReader(data, picture);
 
-      setReaders([...readers, newReader]);
-      setFormDialogOpen(false);
+      if (result.success) {
+        // Recarregar a lista de leitores
+        await loadReaders();
 
-      toast({
-        title: "Leitor cadastrado!",
-        description: `${data.name} foi cadastrado com sucesso. Uma senha foi enviada para ${data.email}.`,
-      });
+        setFormDialogOpen(false);
+
+        toast({
+          title: "Leitor cadastrado!",
+          description: `${data.name} foi cadastrado com sucesso. Uma senha foi enviada para ${data.email}.`,
+        });
+      } else {
+        toast({
+          title: "Erro ao cadastrar leitor",
+          description: result.error || "Erro desconhecido",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Erro ao cadastrar leitor",
-        description: error.message,
+        description: error.message || "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -112,33 +141,47 @@ export default function ReadersPage() {
     }
   };
 
-  const handleUpdateReader = async (data: CreateReaderData, picture?: File) => {
+  const handleUpdateReader = async (
+    data: CreateReaderRequest,
+    picture?: File
+  ) => {
     if (!selectedReader) return;
 
     try {
       setActionLoading(true);
-      const updatedReader = await ReadersService.updateReader(
-        selectedReader.id,
-        data,
-        picture
-      );
 
-      const updatedReaders = readers.map((reader) =>
-        reader.id === selectedReader.id ? updatedReader : reader
-      );
+      // Converter CreateReaderRequest para UpdateReaderRequest
+      const updateData = {
+        name: data.name,
+        email: data.email,
+        cpf: data.cpf,
+        address: data.address,
+      };
 
-      setReaders(updatedReaders);
-      setFormDialogOpen(false);
-      setSelectedReader(null);
+      const result = await updateReader(selectedReader.id, updateData, picture);
 
-      toast({
-        title: "Leitor atualizado!",
-        description: `As informações de ${data.name} foram atualizadas.`,
-      });
+      if (result.success) {
+        // Recarregar a lista de leitores
+        await loadReaders();
+
+        setFormDialogOpen(false);
+        setSelectedReader(null);
+
+        toast({
+          title: "Leitor atualizado!",
+          description: `As informações de ${data.name} foram atualizadas.`,
+        });
+      } else {
+        toast({
+          title: "Erro ao atualizar leitor",
+          description: result.error || "Erro desconhecido",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Erro ao atualizar leitor",
-        description: error.message,
+        description: error.message || "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -151,22 +194,34 @@ export default function ReadersPage() {
 
     try {
       setActionLoading(true);
-      await ReadersService.deleteReader(readerToDelete.userId);
 
-      setReaders(readers.filter((reader) => reader.id !== readerToDelete.id));
-      setDeleteDialogOpen(false);
+      // Usa o ID do reader diretamente (que é o userId)
+      const result = await deleteReader(readerToDelete.id);
 
-      toast({
-        title: "Leitor excluído",
-        description: `${readerToDelete.name} foi removido do sistema.`,
-        variant: "destructive",
-      });
+      if (result.success) {
+        // Recarregar a lista de leitores
+        await loadReaders();
 
-      setReaderToDelete(null);
+        setDeleteDialogOpen(false);
+
+        toast({
+          title: "Leitor excluído",
+          description: `${readerToDelete.name} foi removido do sistema.`,
+          variant: "destructive",
+        });
+
+        setReaderToDelete(null);
+      } else {
+        toast({
+          title: "Erro ao excluir leitor",
+          description: result.error || "Erro desconhecido",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Erro ao excluir leitor",
-        description: error.message,
+        description: error.message || "Erro desconhecido",
         variant: "destructive",
       });
     } finally {
@@ -193,6 +248,26 @@ export default function ReadersPage() {
     setSelectedReader(null);
     setFormDialogOpen(true);
   };
+
+  // Calcular estatísticas
+  const stats = {
+    activeReservations: readers.filter((r) => (r.activeLoans || 0) > 0).length,
+    readyForPickup: 0, // TODO: Implementar quando tiver dados de reservas
+    waitingList: 0, // TODO: Implementar quando tiver dados de fila
+    totalReservations: readers.reduce((acc, r) => acc + (r.totalLoans || 0), 0),
+  };
+
+  // Verificar se o user está carregando ou se não é uma biblioteca
+  if (!user || user.role !== "LIBRARY") {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -221,11 +296,12 @@ export default function ReadersPage() {
         </Button>
       </div>
 
+      {/* Stats */}
       <ReadersStats
-        activeReservations={2}
-        readyForPickup={2}
-        waitingList={3}
-        totalReservations={7}
+        activeReservations={stats.activeReservations}
+        readyForPickup={stats.readyForPickup}
+        waitingList={stats.waitingList}
+        totalReservations={stats.totalReservations}
       />
 
       {/* Filters */}
