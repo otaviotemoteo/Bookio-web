@@ -1,4 +1,4 @@
-import { Reader } from "../../../types/library/reader";
+import { Reader } from "../../../types/index";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
@@ -64,7 +64,7 @@ export function ReaderTable({
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={reader.picture} alt={reader.name} />
+                      <AvatarImage src={reader.pictureUrl} alt={reader.name} />
                       <AvatarFallback>
                         {getInitials(reader.name)}
                       </AvatarFallback>

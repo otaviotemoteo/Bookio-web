@@ -1,4 +1,4 @@
-import { Reader } from "../../../types/library/reader";
+import { Reader } from "../../../types/index";
 import {
   Dialog,
   DialogContent,
@@ -51,7 +51,7 @@ export function ReaderDetailDialog({
           {/* Header com Avatar e Info Principal */}
           <div className="flex items-start gap-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={reader.picture} alt={reader.name} />
+              <AvatarImage src={reader.pictureUrl} alt={reader.name} />
               <AvatarFallback className="text-lg">
                 {getInitials(reader.name)}
               </AvatarFallback>
@@ -152,10 +152,12 @@ export function ReaderDetailDialog({
               <span className="font-medium">Cadastrado em:</span>{" "}
               {formatDate(reader.createdAt)}
             </div>
-            <div>
-              <span className="font-medium">Última atualização:</span>{" "}
-              {formatDate(reader.updatedAt)}
-            </div>
+            {reader.updatedAt && (
+              <div>
+                <span className="font-medium">Última atualização:</span>{" "}
+                {formatDate(reader.updatedAt)}
+              </div>
+            )}
           </div>
 
           {/* Status Badge */}

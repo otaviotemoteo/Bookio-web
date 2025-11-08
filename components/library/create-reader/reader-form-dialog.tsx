@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Reader, CreateReaderData } from "../../../types/library/reader";
+import { Reader, CreateReaderRequest } from "../../../types/index";
 import { Button } from "../../ui/button";
 import {
   Dialog,
@@ -39,7 +39,7 @@ type ReaderFormData = z.infer<typeof readerSchema>;
 interface ReaderFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateReaderData, picture?: File) => void | Promise<void>; // 🆕 Adicionado
+  onSubmit: (data: CreateReaderRequest, picture?: File) => void | Promise<void>;
   reader?: Reader | null;
   libraryId: string;
   loading?: boolean;
@@ -90,7 +90,7 @@ export function ReaderFormDialog({
         cpf: reader.cpf,
         address: reader.address,
       });
-      setPicturePreview(reader.picture || "");
+      setPicturePreview(reader.pictureUrl || "");
     } else {
       reset({
         name: "",
@@ -134,7 +134,7 @@ export function ReaderFormDialog({
   const handleFormSubmit = async (data: ReaderFormData) => {
     try {
       // Preparar dados no formato esperado pela API
-      const readerData: CreateReaderData = {
+      const readerData: CreateReaderRequest = {
         name: data.name,
         email: data.email,
         cpf: data.cpf,

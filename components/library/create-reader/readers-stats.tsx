@@ -58,9 +58,7 @@ export const ReadersStats: React.FC<ReadersStatsProps> = ({
               </div>
               <div>
                 <p className="text-sm text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stat.value}
-                </p>
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
               </div>
             </div>
           </Card>
