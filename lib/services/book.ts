@@ -20,6 +20,8 @@ class BookService {
       formData.append("image", image);
     }
 
+    console.log("📦 Criando livro:", data.title);
+
     return api.uploadFile("/books", formData);
   }
 
