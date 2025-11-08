@@ -3,24 +3,24 @@ import { cookies } from "next/headers";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { id } = params;
+    const { userId } = await params;
 
-    const token = cookies().get("token")?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
 
     if (!token) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/${id}`;
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`;
     console.log("📤 DELETE /user/:id:", apiUrl);
 
     const response = await fetch(apiUrl, {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
@@ -43,8 +43,6 @@ export async function DELETE(
     }
 
     console.log("✅ Usuário excluído com sucesso!");
-
-    cookies().delete("token");
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
