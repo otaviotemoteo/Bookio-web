@@ -28,14 +28,23 @@ export interface UpdateBookRequest {
   year?: string;
   available?: number;
 }
-
 export interface Book {
   id: number;
   title: string;
   author: string;
-  gender: BookGender;
-  year: string;
+  gender?: BookGender;
+  year?: string;
   available: number;
+  imageUrl?: string;
+}
+
+export interface BookApiResponse {
+  id: number;
+  title: string;
+  author: string;
+  available: number;
+  gender?: BookGender;
+  year?: string;
   imageUrl?: string;
 }
 

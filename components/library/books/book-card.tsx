@@ -38,13 +38,19 @@ const GENDER_COLORS: Record<BookGender, string> = {
 };
 
 const BookCard: React.FC<BookCardProps> = ({ book, onEdit, onDelete }) => {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("pt-BR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Data não informada";
+
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("pt-BR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch {
+      return "Data inválida";
+    }
   };
 
   return (
@@ -66,15 +72,17 @@ const BookCard: React.FC<BookCardProps> = ({ book, onEdit, onDelete }) => {
 
       <div className="p-6">
         {/* Badge de Gênero */}
-        <div className="mb-3">
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-              GENDER_COLORS[book.gender]
-            }`}
-          >
-            {GENDER_LABELS[book.gender]}
-          </span>
-        </div>
+        {book.gender && (
+          <div className="mb-3">
+            <span
+              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                GENDER_COLORS[book.gender]
+              }`}
+            >
+              {GENDER_LABELS[book.gender]}
+            </span>
+          </div>
+        )}
 
         {/* Título e Autor */}
         <div className="mb-4">
@@ -89,10 +97,12 @@ const BookCard: React.FC<BookCardProps> = ({ book, onEdit, onDelete }) => {
 
         {/* Informações Adicionais */}
         <div className="space-y-2 mb-4 pb-4 border-b border-gray-100">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Calendar className="w-4 h-4" />
-            <span>{formatDate(book.year)}</span>
-          </div>
+          {book.year && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Calendar className="w-4 h-4" />
+              <span>{formatDate(book.year)}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-sm">
             <Package className="w-4 h-4" />
             <span
