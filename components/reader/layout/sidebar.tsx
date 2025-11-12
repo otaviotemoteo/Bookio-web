@@ -1,97 +1,177 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { cn } from '../../../lib/utils';
 import {
-  FaTachometerAlt,
-  FaBook,
-  FaUsers,
-  FaClipboardList,
-  FaRegMoneyBillAlt,
-  FaCalendarAlt,
-  FaSignOutAlt,
-  FaUserCircle,
-} from "react-icons/fa";
-import { BookOpen } from "lucide-react";
+  LayoutDashboard,
+  BookOpen,
+  Calendar,
+  Heart,
+  User,
+  CreditCard,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+} from 'lucide-react';
+import { Button } from '../../../components/ui/button';
 
-const menuItems = [
-  { href: "/reader/dashboard", icon: <FaTachometerAlt />, label: "Dashboard" },
-  { href: "/reader/books", icon: <FaBook />, label: "Gestão do Acervo" },
+interface NavItem {
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: number;
+}
+
+const navItems: NavItem[] = [
   {
-    href: "/reader/loans",
-    icon: <FaClipboardList />,
-    label: "Empréstimos / Devoluções",
+    title: 'Dashboard',
+    href: '/reader/dashboard',
+    icon: LayoutDashboard,
   },
   {
-    href: "/reader/reservations",
-    icon: <FaCalendarAlt />,
-    label: "Gestão de Reservas",
+    title: 'Catálogo',
+    href: '/reader/catalog',
+    icon: Search,
   },
   {
-    href: "/reader/payments",
-    icon: <FaRegMoneyBillAlt />,
-    label: "Controle de Multas",
+    title: 'Empréstimos',
+    href: '/reader/loans',
+    icon: BookOpen,
+    badge: 3,
   },
-  { href: "/reader/readers", icon: <FaUsers />, label: "Gestão de Usuários" },
+  {
+    title: 'Reservas',
+    href: '/reader/reservations',
+    icon: Calendar,
+    badge: 2,
+  },
+  {
+    title: 'Favoritos',
+    href: '/reader/favorites',
+    icon: Heart,
+    badge: 15,
+  },
+  {
+    title: 'Pagamentos',
+    href: '/reader/payments',
+    icon: CreditCard,
+  },
 ];
 
-const Sidebar: React.FC = () => {
+export function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("/api/logout", { method: "POST" });
+      const res = await fetch('/api/logout', { method: 'POST' });
       if (res.ok) {
-        router.push("/");
+        router.push('/');
       }
     } catch (error) {
-      console.error("Erro ao sair:", error);
+      console.error('Erro ao sair:', error);
     }
   };
 
   return (
-    <aside className="w-64 h-screen bg-blue-50 text-blue-900 flex flex-col border-r border-blue-100 shadow-sm">
-      <div className="flex items-center gap-2 px-6 py-5 border-b border-blue-100">
-        <BookOpen className="w-6 h-6 text-blue-600" />
-        <span className="text-xl font-semibold">Bookio</span>
-      </div>
+    <aside
+      className={cn(
+        'sticky top-16 h-[calc(100vh-4rem)] border-r bg-background transition-all duration-300',
+        collapsed ? 'w-16' : 'w-64'
+      )}
+    >
+      <div className="flex h-full flex-col">
+        {/* Navigation */}
+        <nav className="flex-1 space-y-1 p-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
 
-      <nav className="flex-1 mt-4">
-        <ul className="flex flex-col gap-1 px-2">
-          {menuItems.map((item, index) => (
-            <li key={index}>
-              <Link
-                href={item.href}
-                className="flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-100 hover:text-blue-800 transition-colors duration-200"
-              >
-                <span className="text-blue-600">{item.icon}</span>
-                {item.label}
+            return (
+              <Link key={item.href} href={item.href}>
+                <div
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )}
+                >
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  {!collapsed && (
+                    <>
+                      <span className="flex-1">{item.title}</span>
+                      {item.badge && (
+                        <span
+                          className={cn(
+                            'flex h-5 w-5 items-center justify-center rounded-full text-xs',
+                            isActive
+                              ? 'bg-primary-foreground text-primary'
+                              : 'bg-muted text-muted-foreground'
+                          )}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
               </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+            );
+          })}
+        </nav>
 
-      <div className="px-2 py-4 border-t border-blue-100 space-y-1">
-        <Link
-          href="/reader/profile"
-          className="flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-100 hover:text-blue-800 transition-colors duration-200"
-        >
-          <FaUserCircle className="text-blue-600" />
-          Perfil
-        </Link>
+        {/* Footer Actions */}
+        <div className="border-t p-2 space-y-1">
+          {/* Profile Link */}
+          <Link href="/reader/profile">
+            <div
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                pathname === '/reader/profile'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+            >
+              <User className="h-5 w-5 flex-shrink-0" />
+              {!collapsed && <span className="flex-1">Perfil</span>}
+            </div>
+          </Link>
 
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 text-sm font-medium text-blue-700 hover:text-red-600 hover:bg-red-50 px-4 py-2 rounded-md transition-colors duration-200"
-        >
-          <FaSignOutAlt className="text-red-500" />
-          Sair
-        </button>
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className={cn(
+              'w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              'text-red-600 hover:bg-red-50 hover:text-red-700'
+            )}
+          >
+            <LogOut className="h-5 w-5 flex-shrink-0" />
+            {!collapsed && <span className="flex-1">Sair</span>}
+          </button>
+
+          {/* Collapse Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <>
+                <ChevronLeft className="h-5 w-5 mr-2" />
+                <span>Recolher</span>
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </aside>
   );
-};
-
-export default Sidebar;
+}
