@@ -4,36 +4,47 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  FaTachometerAlt,
-  FaBook,
-  FaUsers,
-  FaClipboardList,
-  FaRegMoneyBillAlt,
-  FaCalendarAlt,
-  FaSignOutAlt,
-  FaUserCircle,
-} from "react-icons/fa";
-import { BookOpen } from "lucide-react";
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  RefreshCw,
+  CalendarCheck,
+  Banknote,
+  User,
+  LogOut,
+} from "lucide-react";
 
 const menuItems = [
-  { href: "/library/dashboard", icon: <FaTachometerAlt />, label: "Dashboard" },
-  { href: "/library/books", icon: <FaBook />, label: "Gestão do Acervo" },
+  {
+    href: "/library/dashboard",
+    icon: <LayoutDashboard className="w-5 h-5" />,
+    label: "Dashboard",
+  },
+  {
+    href: "/library/books",
+    icon: <BookOpen className="w-5 h-5" />,
+    label: "Gestão do Acervo",
+  },
   {
     href: "/library/loans",
-    icon: <FaClipboardList />,
+    icon: <RefreshCw className="w-5 h-5" />,
     label: "Empréstimos / Devoluções",
   },
   {
     href: "/library/reservations",
-    icon: <FaCalendarAlt />,
+    icon: <CalendarCheck className="w-5 h-5" />,
     label: "Gestão de Reservas",
   },
   {
     href: "/library/payments",
-    icon: <FaRegMoneyBillAlt />,
+    icon: <Banknote className="w-5 h-5" />,
     label: "Controle de Multas",
   },
-  { href: "/library/readers", icon: <FaUsers />, label: "Gestão de Usuários" },
+  {
+    href: "/library/readers",
+    icon: <Users className="w-5 h-5" />,
+    label: "Gestão de Usuários",
+  },
 ];
 
 const Sidebar: React.FC = () => {
@@ -78,7 +89,7 @@ const Sidebar: React.FC = () => {
           href="/library/profile"
           className="flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-100 hover:text-blue-800 transition-colors duration-200"
         >
-          <FaUserCircle className="text-blue-600" />
+          <User className="w-5 h-5 text-blue-600" />
           Perfil
         </Link>
 
@@ -86,7 +97,7 @@ const Sidebar: React.FC = () => {
           onClick={handleLogout}
           className="w-full flex items-center gap-3 text-sm font-medium text-blue-700 hover:text-red-600 hover:bg-red-50 px-4 py-2 rounded-md transition-colors duration-200"
         >
-          <FaSignOutAlt className="text-red-500" />
+          <LogOut className="w-5 h-5 text-red-500" />
           Sair
         </button>
       </div>
