@@ -18,8 +18,6 @@ export const mockUserProfile: UserProfile = {
   },
   avatar: '/placeholder-avatar.jpg',
   memberSince: '2022-01-15',
-  membershipType: 'premium',
-  membershipExpiry: '2025-01-15',
 };
 
 export const mockReadingHistory: ReadingHistory[] = [
