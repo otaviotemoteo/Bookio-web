@@ -79,7 +79,6 @@ export function PaymentFilters({ filters, onFilterChange }: PaymentFiltersProps)
           >
             <option value="all">Todos os Tipos</option>
             <option value="fine">Multas</option>
-            <option value="membership">Mensalidade</option>
             <option value="replacement">Reposição</option>
           </select>
         </div>

@@ -48,11 +48,6 @@ const typeConfig = {
     icon: AlertCircle,
     color: 'text-red-600',
   },
-  membership: {
-    label: 'Mensalidade',
-    icon: CreditCard,
-    color: 'text-blue-600',
-  },
   replacement: {
     label: 'Reposição',
     icon: BookOpen,
