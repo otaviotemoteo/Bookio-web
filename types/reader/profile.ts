@@ -10,8 +10,6 @@ export interface UserProfile {
   address: Address;
   avatar?: string;
   memberSince: string;
-  membershipType: 'basic' | 'premium' | 'vip';
-  membershipExpiry?: string;
 }
 
 export interface Address {

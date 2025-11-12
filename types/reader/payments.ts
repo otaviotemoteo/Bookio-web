@@ -2,7 +2,7 @@
 
 export interface Payment {
   id: string;
-  type: 'fine' | 'membership' | 'replacement';
+  type: 'fine' | 'replacement';
   description: string;
   amount: number;
   dueDate: string;
@@ -18,7 +18,7 @@ export interface Payment {
 
 export interface PaymentFilters {
   status: 'all' | 'pending' | 'paid' | 'overdue';
-  type: 'all' | 'fine' | 'membership' | 'replacement';
+  type: 'all' | 'fine' | 'replacement';
   search: string;
   sortBy: 'dueDate' | 'amount' | 'paidDate';
   sortOrder: 'asc' | 'desc';
