@@ -1,31 +1,119 @@
-// types/loans.ts
+import { Loan, LoanStats } from '../../types/reader/loans';
 
-export interface Loan {
-  id: string;
-  bookId: string;
-  bookTitle: string;
-  bookAuthor: string;
-  bookCover: string;
-  isbn: string;
-  loanDate: string;
-  dueDate: string;
-  returnDate?: string;
-  status: 'active' | 'overdue' | 'returned' | 'renewed';
-  renewalCount: number;
-  maxRenewals: number;
-  fine?: number;
-}
+export const mockLoans: Loan[] = [
+  {
+    id: '1',
+    bookId: 'b1',
+    bookTitle: 'Código Limpo: Habilidades Práticas do Agile Software',
+    bookAuthor: 'Robert C. Martin',
+    bookCover: '/placeholder-book-1.jpg',
+    isbn: '978-8576082675',
+    loanDate: '2024-09-15',
+    dueDate: '2024-10-15',
+    status: 'active',
+    renewalCount: 0,
+    maxRenewals: 3,
+  },
+  {
+    id: '2',
+    bookId: 'b2',
+    bookTitle: 'Clean Architecture: Guia para Estruturar Projetos',
+    bookAuthor: 'Robert C. Martin',
+    bookCover: '/placeholder-book-2.jpg',
+    isbn: '978-8550804606',
+    loanDate: '2024-09-20',
+    dueDate: '2024-10-04',
+    status: 'overdue',
+    renewalCount: 2,
+    maxRenewals: 3,
+    fine: 15.50,
+  },
+  {
+    id: '3',
+    bookId: 'b3',
+    bookTitle: 'Domain-Driven Design: Atacando as Complexidades',
+    bookAuthor: 'Eric Evans',
+    bookCover: '/placeholder-book-3.jpg',
+    isbn: '978-8550800653',
+    loanDate: '2024-09-25',
+    dueDate: '2024-10-25',
+    status: 'active',
+    renewalCount: 1,
+    maxRenewals: 3,
+  },
+  {
+    id: '4',
+    bookId: 'b4',
+    bookTitle: 'Refactoring: Improving the Design of Existing Code',
+    bookAuthor: 'Martin Fowler',
+    bookCover: '/placeholder-book-4.jpg',
+    isbn: '978-0134757599',
+    loanDate: '2024-08-10',
+    dueDate: '2024-09-10',
+    returnDate: '2024-09-08',
+    status: 'returned',
+    renewalCount: 0,
+    maxRenewals: 3,
+  },
+  {
+    id: '5',
+    bookId: 'b5',
+    bookTitle: 'Design Patterns: Elements of Reusable',
+    bookAuthor: 'Gang of Four',
+    bookCover: '/placeholder-book-5.jpg',
+    isbn: '978-0201633610',
+    loanDate: '2024-08-20',
+    dueDate: '2024-09-01',
+    status: 'overdue',
+    renewalCount: 3,
+    maxRenewals: 3,
+    fine: 45.00,
+  },
+  {
+    id: '6',
+    bookId: 'b6',
+    bookTitle: 'The Pragmatic Programmer',
+    bookAuthor: 'Andrew Hunt, David Thomas',
+    bookCover: '/placeholder-book-6.jpg',
+    isbn: '978-0135957059',
+    loanDate: '2024-09-01',
+    dueDate: '2024-10-01',
+    status: 'renewed',
+    renewalCount: 1,
+    maxRenewals: 3,
+  },
+  {
+    id: '7',
+    bookId: 'b7',
+    bookTitle: 'JavaScript: The Good Parts',
+    bookAuthor: 'Douglas Crockford',
+    bookCover: '/placeholder-book-7.jpg',
+    isbn: '978-0596517748',
+    loanDate: '2024-08-05',
+    dueDate: '2024-09-05',
+    returnDate: '2024-09-04',
+    status: 'returned',
+    renewalCount: 0,
+    maxRenewals: 3,
+  },
+  {
+    id: '8',
+    bookId: 'b8',
+    bookTitle: 'You Don\'t Know JS: Scope & Closures',
+    bookAuthor: 'Kyle Simpson',
+    bookCover: '/placeholder-book-8.jpg',
+    isbn: '978-1449335588',
+    loanDate: '2024-09-28',
+    dueDate: '2024-10-28',
+    status: 'active',
+    renewalCount: 0,
+    maxRenewals: 3,
+  },
+];
 
-export interface LoanFilters {
-  status: 'all' | 'active' | 'overdue' | 'returned';
-  search: string;
-  sortBy: 'dueDate' | 'loanDate' | 'title';
-  sortOrder: 'asc' | 'desc';
-}
-
-export interface LoanStats {
-  totalLoans: number;
-  activeLoans: number;
-  overdueLoans: number;
-  totalFines: number;
-}
+export const mockLoanStats: LoanStats = {
+  totalLoans: mockLoans.length,
+  activeLoans: mockLoans.filter(loan => loan.status === 'active' || loan.status === 'renewed').length,
+  overdueLoans: mockLoans.filter(loan => loan.status === 'overdue').length,
+  totalFines: mockLoans.reduce((sum, loan) => sum + (loan.fine || 0), 0),
+};
