@@ -1,144 +1,177 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { LoansTable } from '../../../components/library/loans/loans-table';
-import { LoansStats } from '../../../components/library/loans/loan-stats';
-import { LoansFilters } from '../../../components/library/loans/loan-filters';
-import { NewLoanDialog } from '../../../components/library/loans/new-loan-dialog';
-import { ReturnDialog } from '../../../components/library/loans/return-dialog';
-import { mockLoans } from '../../../data/library/mock-loans';
-import { Loan, LoanFormData, ReturnFormData, LoanStatus } from '../../../types/library/loans';
-import { useToast } from '../../../components/ui/use-toast';
+import { useState, useEffect, useMemo } from "react";
+import { LoansTable } from "../../../components/library/loans/loans-table";
+import { LoansStats } from "../../../components/library/loans/loan-stats";
+import { LoansFilters } from "../../../components/library/loans/loan-filters";
+import { NewLoanDialog } from "../../../components/library/loans/new-loan-dialog";
+import { useAuth } from "../../../hooks/use-auth";
+import { useLoan } from "../../../hooks/use-loan";
+import { useToast } from "../../../components/ui/use-toast";
+import {
+  Loan,
+  LoanSimple,
+  LoanStatus,
+  CreateLoanRequest,
+} from "../../../types/index";
 
 export default function LoansPage() {
-  const [loans, setLoans] = useState<Loan[]>(mockLoans);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<LoanStatus | 'all'>('all');
-  const [returnDialog, setReturnDialog] = useState<{
-    open: boolean;
-    loanId: string;
-    bookTitle: string;
-  }>({ open: false, loanId: '', bookTitle: '' });
-  
+  const { user } = useAuth();
+  const { getAllLoans, createLoan, deleteLoan, getLoan, isLoading } = useLoan();
   const { toast } = useToast();
+
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<LoanStatus | "all">("all");
+
+  useEffect(() => {
+    if (user?.id) {
+      loadLoans();
+    }
+  }, [user]);
+
+  const loadLoans = async () => {
+    console.log("📤 Buscando empréstimos...");
+    const result = await getAllLoans();
+
+    if (result.success && result.data) {
+      console.log("✅ Empréstimos carregados (simples):", result.data);
+
+      // Buscar detalhes completos de cada empréstimo
+      const detailedLoans = await Promise.all(
+        result.data.map(async (simpleLoan: LoanSimple) => {
+          const detailResult = await getLoan(simpleLoan.id);
+          return detailResult.success && detailResult.data
+            ? detailResult.data
+            : null;
+        })
+      );
+
+      // Filtrar nulls e atualizar estado
+      const validLoans = detailedLoans.filter(
+        (loan): loan is Loan => loan !== null
+      );
+      console.log("✅ Empréstimos detalhados:", validLoans);
+      setLoans(validLoans);
+    } else {
+      console.error("❌ Erro ao carregar empréstimos:", result.error);
+      toast({
+        title: "Erro ao carregar empréstimos",
+        description: result.error,
+        variant: "destructive",
+      });
+    }
+  };
 
   // Filtrar empréstimos
   const filteredLoans = useMemo(() => {
-    return loans.filter(loan => {
-      const matchesSearch = 
-        loan.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        loan.bookAuthor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        loan.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        loan.userEmail.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesStatus = statusFilter === 'all' || loan.status === statusFilter;
-      
+    return loans.filter((loan) => {
+      const matchesSearch =
+        loan.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        loan.bookId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        loan.readerId.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus =
+        statusFilter === "all" || loan.status === statusFilter;
+
       return matchesSearch && matchesStatus;
     });
   }, [loans, searchTerm, statusFilter]);
 
   // Calcular estatísticas
   const stats = useMemo(() => {
-    const activeLoans = loans.filter(l => l.status === 'active').length;
-    const overdueLoans = loans.filter(l => l.status === 'overdue').length;
-    const today = new Date().toISOString().split('T')[0];
-    const returnedToday = loans.filter(l => l.returnDate === today).length;
-    const totalFines = loans.reduce((sum, l) => sum + (l.fine || 0), 0);
+    const activeLoans = loans.filter((l) => l.status === "ACTIVE").length;
+    const overdueLoans = loans.filter((l) => l.status === "OVERDUE").length;
+    const today = new Date().toISOString().split("T")[0];
+    const returnedToday = loans.filter(
+      (l) => l.status === "RETURNED" && l.returnDate === today
+    ).length;
 
-    return { activeLoans, overdueLoans, returnedToday, totalFines };
+    return { activeLoans, overdueLoans, returnedToday, totalFines: 0 };
   }, [loans]);
 
   // Registrar novo empréstimo
-  const handleNewLoan = (data: LoanFormData) => {
-    const newLoan: Loan = {
-      id: `loan-${Date.now()}`,
-      bookId: data.bookId,
-      bookTitle: 'Livro Emprestado',
-      bookAuthor: 'Autor',
-      userId: data.userId,
-      userName: 'Usuário',
-      userEmail: 'usuario@email.com',
-      loanDate: data.loanDate,
-      dueDate: data.dueDate,
-      status: 'active',
-      renewalCount: 0
-    };
+  const handleNewLoan = async (data: CreateLoanRequest) => {
+    console.log("📤 Criando empréstimo:", data);
+    const result = await createLoan(data);
 
-    setLoans([newLoan, ...loans]);
-    toast({
-      title: 'Empréstimo registrado!',
-      description: 'O empréstimo foi registrado com sucesso.',
-    });
-  };
-
-  // Renovar empréstimo
-  const handleRenew = (loanId: string) => {
-    setLoans(loans.map(loan => {
-      if (loan.id === loanId) {
-        const newDueDate = new Date(loan.dueDate);
-        newDueDate.setDate(newDueDate.getDate() + 15);
-        
-        return {
-          ...loan,
-          dueDate: newDueDate.toISOString().split('T')[0],
-          renewalCount: loan.renewalCount + 1
-        };
-      }
-      return loan;
-    }));
-
-    toast({
-      title: 'Empréstimo renovado!',
-      description: 'O prazo de devolução foi estendido por 15 dias.',
-    });
-  };
-
-  // Abrir dialog de devolução
-  const handleOpenReturn = (loanId: string) => {
-    const loan = loans.find(l => l.id === loanId);
-    if (loan) {
-      setReturnDialog({
-        open: true,
-        loanId: loan.id,
-        bookTitle: loan.bookTitle
+    if (result.success) {
+      console.log("✅ Empréstimo criado!");
+      toast({
+        title: "Empréstimo registrado!",
+        description: "O empréstimo foi registrado com sucesso.",
+      });
+      loadLoans(); // Recarregar lista
+    } else {
+      console.error("❌ Erro ao criar empréstimo:", result.error);
+      toast({
+        title: "Erro ao registrar empréstimo",
+        description: result.error,
+        variant: "destructive",
       });
     }
   };
 
-  // Registrar devolução
-  const handleReturn = (data: ReturnFormData) => {
-    setLoans(loans.map(loan => {
-      if (loan.id === data.loanId) {
-        return {
-          ...loan,
-          status: 'returned' as LoanStatus,
-          returnDate: data.returnDate
-        };
-      }
-      return loan;
-    }));
+  // Deletar empréstimo
+  const handleDelete = async (loanId: string) => {
+    if (!confirm("Tem certeza que deseja deletar este empréstimo?")) {
+      return;
+    }
 
-    toast({
-      title: 'Devolução registrada!',
-      description: 'O livro foi devolvido com sucesso.',
-    });
+    console.log("📤 Deletando empréstimo:", loanId);
+    const result = await deleteLoan(loanId);
+
+    if (result.success) {
+      console.log("✅ Empréstimo deletado!");
+      toast({
+        title: "Empréstimo deletado!",
+        description: "O empréstimo foi removido com sucesso.",
+      });
+      loadLoans(); // Recarregar lista
+    } else {
+      console.error("❌ Erro ao deletar empréstimo:", result.error);
+      toast({
+        title: "Erro ao deletar empréstimo",
+        description: result.error,
+        variant: "destructive",
+      });
+    }
   };
 
+  // Loading inicial
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 max-w-7xl">
-      <div className="flex justify-between items-center">
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Empréstimos e Devoluções</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Empréstimos e Devoluções
+          </h1>
+          <p className="text-gray-600">
             Gerencie os empréstimos e devoluções de livros
           </p>
         </div>
-        <NewLoanDialog onSubmit={handleNewLoan} />
+        <NewLoanDialog libraryId={user.id} onSubmit={handleNewLoan} />
       </div>
 
-      <LoansStats {...stats} />
+      {/* Estatísticas */}
+      <div className="mb-8">
+        <LoansStats {...stats} />
+      </div>
 
-      <div className="space-y-4">
+      {/* Filtros e Tabela */}
+      <div className="space-y-6">
         <LoansFilters
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -148,19 +181,11 @@ export default function LoansPage() {
 
         <LoansTable
           loans={filteredLoans}
-          onReturn={handleOpenReturn}
-          onRenew={handleRenew}
-          hasFilters={searchTerm !== '' || statusFilter !== 'all'}
+          onDelete={handleDelete}
+          hasFilters={searchTerm !== "" || statusFilter !== "all"}
+          isLoading={isLoading}
         />
       </div>
-
-      <ReturnDialog
-        open={returnDialog.open}
-        onOpenChange={(open) => setReturnDialog({ ...returnDialog, open })}
-        loanId={returnDialog.loanId}
-        bookTitle={returnDialog.bookTitle}
-        onSubmit={handleReturn}
-      />
     </div>
   );
 }
