@@ -190,7 +190,7 @@ const EditBookModal: React.FC<EditBookModalProps> = ({
                     </button>
                   </div>
                 ) : (
-                  <label className="w-32 h-48 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                  <label className="w-full h-48 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                     <Upload className="w-8 h-8 text-gray-400 mb-2" />
                     <span className="text-sm text-gray-500">Upload</span>
                     <input
