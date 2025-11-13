@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { Filter, Search } from "lucide-react";
-import { LoanStatus } from "../../../types/library/loans";
+import { LoanStatus } from "../../../types/index";
 
 interface LoansFiltersProps {
   searchTerm: string;
@@ -29,7 +29,7 @@ export function LoansFilters({
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
-          placeholder="Buscar por livro, usuário ou email..."
+          placeholder="Buscar por ID do livro, leitor ou empréstimo..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-10"
@@ -42,10 +42,9 @@ export function LoansFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos os Status</SelectItem>
-          <SelectItem value="active">Ativos</SelectItem>
-          <SelectItem value="overdue">Em Atraso</SelectItem>
-          <SelectItem value="returned">Devolvidos</SelectItem>
-          <SelectItem value="pending">Pendentes</SelectItem>
+          <SelectItem value="ACTIVE">Ativos</SelectItem>
+          <SelectItem value="OVERDUE">Em Atraso</SelectItem>
+          <SelectItem value="RETURNED">Devolvidos</SelectItem>
         </SelectContent>
       </Select>
     </div>
