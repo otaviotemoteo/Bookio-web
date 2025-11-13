@@ -4,7 +4,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-export default function LoansLayout({ children }: LayoutProps) {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex h-screen">
       <Sidebar />
@@ -13,4 +13,6 @@ export default function LoansLayout({ children }: LayoutProps) {
       </div>
     </div>
   );
-}
+};
+
+export default Layout;
