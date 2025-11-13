@@ -1,41 +1,121 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loanService } from "../../../lib/services/loan";
-import { CreateLoanRequest } from "../../../types/loan";
+import { cookies } from "next/headers";
 
-// POST /api/loans - Criar empréstimo
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body: CreateLoanRequest = await req.json();
+    const body = await request.json();
 
+    // Validação básica
     if (!body.bookId || !body.readerId || !body.returnDate) {
       return NextResponse.json(
-        { message: "Campos obrigatórios: bookId, readerId, returnDate" },
+        { error: "Campos obrigatórios: bookId, readerId, returnDate" },
         { status: 400 }
       );
     }
 
-    const loan = await loanService.createLoan(body);
+    const token = cookies().get("token")?.value;
 
-    return NextResponse.json({ loan }, { status: 201 });
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/loans`;
+    console.log("📤 POST /loans:", apiUrl);
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const textBody = await response.text();
+    let data;
+
+    try {
+      data = textBody ? JSON.parse(textBody) : {};
+    } catch (parseError) {
+      console.error("❌ Erro ao parsear JSON:", parseError);
+      return NextResponse.json(
+        {
+          error: "API externa retornou resposta inválida",
+          details: textBody.slice(0, 200),
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!response.ok) {
+      console.error("❌ Erro da API:", data);
+      return NextResponse.json(
+        { error: data.message || "Erro ao criar empréstimo" },
+        { status: response.status }
+      );
+    }
+
+    console.log("✅ Empréstimo criado com sucesso!");
+    return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
-    console.error("Error creating loan:", error);
+    console.error("❌ ERRO NO SERVIDOR:", error);
     return NextResponse.json(
-      { message: error.message || "Erro ao criar empréstimo" },
-      { status: error.status || 500 }
+      { error: "Erro interno do servidor: " + error.message },
+      { status: 500 }
     );
   }
 }
 
-// GET /api/loans - Listar todos os empréstimos
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const loans = await loanService.getAllLoans();
-    return NextResponse.json({ loans });
+    const token = cookies().get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/loans`;
+    console.log("📤 GET /loans:", apiUrl);
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const textBody = await response.text();
+    let data;
+
+    try {
+      data = textBody ? JSON.parse(textBody) : {};
+    } catch (parseError) {
+      console.error("❌ Erro ao parsear JSON:", parseError);
+      return NextResponse.json(
+        {
+          error: "API externa retornou resposta inválida",
+          details: textBody.slice(0, 200),
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!response.ok) {
+      console.error("❌ Erro da API:", data);
+      return NextResponse.json(
+        { error: data.message || "Erro ao buscar empréstimos" },
+        { status: response.status }
+      );
+    }
+
+    console.log("✅ Empréstimos listados com sucesso!");
+    return NextResponse.json(data);
   } catch (error: any) {
-    console.error("Error fetching loans:", error);
+    console.error("❌ ERRO NO SERVIDOR:", error);
     return NextResponse.json(
-      { message: error.message || "Erro ao buscar empréstimos" },
-      { status: error.status || 500 }
+      { error: "Erro interno do servidor: " + error.message },
+      { status: 500 }
     );
   }
 }

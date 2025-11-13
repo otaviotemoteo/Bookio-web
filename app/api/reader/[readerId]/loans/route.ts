@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function GET(
   request: NextRequest,
@@ -7,27 +8,35 @@ export async function GET(
   try {
     const { readerId } = params;
 
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/readers/${readerId}/loans`;
-    console.log("📤 GET /readers/:id/loans:", apiUrl);
+    const token = cookies().get("token")?.value;
 
-    const token = request.headers.get("authorization");
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/readers/${readerId}/loans`;
+    console.log("📤 GET /readers/:readerId/loans:", apiUrl);
 
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: token }),
+        Authorization: `Bearer ${token}`,
       },
     });
 
     const textBody = await response.text();
     let data;
+
     try {
       data = textBody ? JSON.parse(textBody) : {};
     } catch (parseError) {
       console.error("❌ Erro ao parsear JSON:", parseError);
       return NextResponse.json(
-        { error: "API externa retornou resposta inválida" },
+        {
+          error: "API externa retornou resposta inválida",
+          details: textBody.slice(0, 200),
+        },
         { status: 500 }
       );
     }
@@ -35,17 +44,17 @@ export async function GET(
     if (!response.ok) {
       console.error("❌ Erro da API:", data);
       return NextResponse.json(
-        { error: data.message || "Empréstimos não encontrados" },
+        { error: data.message || "Erro ao buscar empréstimos do leitor" },
         { status: response.status }
       );
     }
 
-    console.log("✅ Empréstimos encontrados!");
+    console.log("✅ Empréstimos do leitor listados com sucesso!");
     return NextResponse.json(data);
   } catch (error: any) {
     console.error("❌ ERRO NO SERVIDOR:", error);
     return NextResponse.json(
-      { error: "Erro interno: " + error.message },
+      { error: "Erro interno do servidor: " + error.message },
       { status: 500 }
     );
   }
