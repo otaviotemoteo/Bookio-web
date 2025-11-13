@@ -128,97 +128,97 @@ export default function BooksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <div className="max-w-7xl mx-auto p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Gestão do Acervo
-          </h1>
-          <p className="text-gray-600">
-            Gerencie sua biblioteca de forma simples e eficiente
-          </p>
-        </div>
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          Gestão do Acervo
+        </h1>
+        <p className="text-gray-600">
+          Gerencie sua biblioteca de forma simples e eficiente
+        </p>
+      </div>
 
-        {/* Estatísticas */}
-        <div className="mb-8">
-          <BooksStats
-            totalBooks={books.length}
-            uniqueAuthors={uniqueAuthors}
-            searchResults={filteredBooks.length}
-          />
-        </div>
+      {/* Estatísticas */}
+      <div className="mb-8">
+        <BooksStats
+          totalBooks={books.length}
+          uniqueAuthors={uniqueAuthors}
+          searchResults={filteredBooks.length}
+        />
+      </div>
 
-        {/* Barra de Ações */}
-        <div className="flex flex-col gap-4 mb-8">
-          {/* Busca e Adicionar */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Buscar por título ou autor..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearchInDatabase()}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <button
-              onClick={handleSearchInDatabase}
-              disabled={isLoading}
-              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-50"
-            >
-              Buscar no Banco
-            </button>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
-            >
-              <Plus className="w-5 h-5" />
-              Adicionar Livro
-            </button>
+      {/* Barra de Ações */}
+      <div className="flex flex-col gap-4 mb-8">
+        {/* Busca e Adicionar */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Buscar por título ou autor..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearchInDatabase()}
+              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
-
-          {/* Filtro por Gênero */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <Filter className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-700">
-              Filtrar por gênero:
-            </span>
-            <select
-              value={selectedGender}
-              onChange={(e) =>
-                setSelectedGender(e.target.value as BookGender | "all")
-              }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">Todos</option>
-              <option value="Fiction">Ficção</option>
-              <option value="NonFiction">Não-ficção</option>
-              <option value="Fantasy">Fantasia</option>
-              <option value="ScienceFiction">Ficção Científica</option>
-              <option value="Mystery">Mistério</option>
-              <option value="Romance">Romance</option>
-              <option value="Thriller">Thriller</option>
-              <option value="Horror">Terror</option>
-              <option value="Biography">Biografia</option>
-              <option value="History">História</option>
-              <option value="Poetry">Poesia</option>
-              <option value="SelfHelp">Autoajuda</option>
-            </select>
-            {selectedGender !== "all" && (
-              <button
-                onClick={() => setSelectedGender("all")}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Limpar filtro
-              </button>
-            )}
-          </div>
+          <button
+            onClick={handleSearchInDatabase}
+            disabled={isLoading}
+            className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium shadow-md hover:shadow-lg disabled:opacity-50"
+          >
+            Buscar no Banco
+          </button>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
+          >
+            <Plus className="w-5 h-5" />
+            Adicionar Livro
+          </button>
         </div>
 
-        {/* Loading State */}
+        {/* Filtro por Gênero */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <Filter className="w-5 h-5 text-gray-600" />
+          <span className="text-sm font-medium text-gray-700">
+            Filtrar por gênero:
+          </span>
+          <select
+            value={selectedGender}
+            onChange={(e) =>
+              setSelectedGender(e.target.value as BookGender | "all")
+            }
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">Todos</option>
+            <option value="Fiction">Ficção</option>
+            <option value="NonFiction">Não-ficção</option>
+            <option value="Fantasy">Fantasia</option>
+            <option value="ScienceFiction">Ficção Científica</option>
+            <option value="Mystery">Mistério</option>
+            <option value="Romance">Romance</option>
+            <option value="Thriller">Thriller</option>
+            <option value="Horror">Terror</option>
+            <option value="Biography">Biografia</option>
+            <option value="History">História</option>
+            <option value="Poetry">Poesia</option>
+            <option value="SelfHelp">Autoajuda</option>
+          </select>
+          {selectedGender !== "all" && (
+            <button
+              onClick={() => setSelectedGender("all")}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Limpar filtro
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Conteúdo */}
+      <div className="flex-1">
         {isLoading && (
           <div className="text-center py-16 bg-white rounded-xl shadow-sm">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -226,7 +226,6 @@ export default function BooksPage() {
           </div>
         )}
 
-        {/* Lista de Livros */}
         {!isLoading && filteredBooks.length === 0 && (
           <div className="text-center py-16 bg-white rounded-xl shadow-sm">
             <BookIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
