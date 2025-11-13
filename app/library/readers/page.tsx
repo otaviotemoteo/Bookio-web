@@ -34,7 +34,7 @@ import { ReadersStats } from "../../../components/library/create-reader/readers-
 
 export default function ReadersPage() {
   const { toast } = useToast();
-  const { user } = useAuth(); // 🔥 Pegar o user autenticado
+  const { user } = useAuth();
   const { listReaders, createReader, updateReader, deleteReader } = useReader();
 
   const [readers, setReaders] = useState<Reader[]>([]);
