@@ -5,6 +5,23 @@ import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Plus, Loader2 } from "lucide-react";
 import { CreateLoanRequest } from "../../../types/index";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "../../ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../ui/dialog";
+import { Input } from "../../ui/input";
 
 interface NewLoanDialogProps {
   libraryId: string;
@@ -111,151 +128,122 @@ export function NewLoanDialog({ libraryId, onSubmit }: NewLoanDialogProps) {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>
-        <Plus className="h-4 w-4 mr-2" />
-        Novo Empréstimo
-      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        {/* BOTÃO DE ABRIR */}
+        <DialogTrigger asChild>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Empréstimo
+          </Button>
+        </DialogTrigger>
 
-      {open && (
-        <div
-          className={`fixed inset-0 z-[9999] flex justify-center items-center p-4 transition-opacity duration-200 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-          onClick={handleClose}
-        >
-          <div
-            className={`bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-200 ${
-              isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-            }`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6">
-              <h2 className="text-2xl font-bold mb-2 text-gray-900">
-                Registrar Novo Empréstimo
-              </h2>
-              <p className="text-sm text-gray-500 mb-6">
-                Preencha os dados para registrar um novo empréstimo de livro.
-              </p>
+        {/* MODAL */}
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Registrar Novo Empréstimo</DialogTitle>
+            <DialogDescription>
+              Preencha os dados para registrar um novo empréstimo de livro.
+            </DialogDescription>
+          </DialogHeader>
 
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label
-                      htmlFor="readerId"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Leitor{" "}
-                      {readers.length > 0 && `(${readers.length} disponíveis)`}
-                    </Label>
-                    <select
-                      id="readerId"
-                      value={formData.readerId}
-                      onChange={(e) => {
-                        console.log("🔄 Leitor selecionado:", e.target.value);
-                        setFormData({ ...formData, readerId: e.target.value });
-                      }}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white text-gray-900"
-                    >
-                      <option value="">Selecione um leitor</option>
-                      {readers.map((reader) => (
-                        <option key={reader.id} value={reader.id}>
-                          {reader.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="bookId"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Livro{" "}
-                      {books.length > 0 && `(${books.length} disponíveis)`}
-                    </Label>
-                    <select
-                      id="bookId"
-                      value={formData.bookId}
-                      onChange={(e) => {
-                        console.log("🔄 Livro selecionado:", e.target.value);
-                        setFormData({ ...formData, bookId: e.target.value });
-                      }}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white text-gray-900"
-                    >
-                      <option value="">Selecione um livro</option>
-                      {books.map((book) => (
-                        <option key={book.id} value={String(book.id)}>
-                          {book.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <Label
-                      htmlFor="returnDate"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Data de Devolução
-                    </Label>
-                    <input
-                      id="returnDate"
-                      type="date"
-                      value={formData.returnDate}
-                      onChange={(e) =>
-                        setFormData({ ...formData, returnDate: e.target.value })
-                      }
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-3 mt-6">
-                    <button
-                      type="button"
-                      onClick={handleClose}
-                      className="px-5 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-medium"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={
-                        !formData.readerId ||
-                        !formData.bookId ||
-                        !formData.returnDate
-                      }
-                      className="px-5 py-2.5 text-white rounded-lg transition-all font-medium shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ backgroundColor: "rgb(58, 123, 236)" }}
-                      onMouseEnter={(e) =>
-                        !formData.readerId ||
-                        !formData.bookId ||
-                        !formData.returnDate
-                          ? null
-                          : (e.currentTarget.style.backgroundColor =
-                              "rgb(48, 108, 206)")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "rgb(58, 123, 236)")
-                      }
-                    >
-                      Registrar Empréstimo
-                    </button>
-                  </div>
-                </form>
-              )}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          </div>
-        </div>
-      )}
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* SELECT LEITOR */}
+              <div>
+                <Label htmlFor="readerId">
+                  Leitor{" "}
+                  {readers.length > 0 && `(${readers.length} disponíveis)`}
+                </Label>
+
+                <Select
+                  value={formData.readerId}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, readerId: value })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um leitor" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {readers.map((reader) => (
+                      <SelectItem key={reader.id} value={String(reader.id)}>
+                        {reader.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* SELECT LIVRO */}
+              <div>
+                <Label htmlFor="bookId">
+                  Livro {books.length > 0 && `(${books.length} disponíveis)`}
+                </Label>
+
+                <Select
+                  value={formData.bookId}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, bookId: value })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um livro" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {books.map((book) => (
+                      <SelectItem key={book.id} value={String(book.id)}>
+                        {book.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* DATA DE DEVOLUÇÃO */}
+              <div>
+                <Label htmlFor="returnDate">Data de Devolução</Label>
+                <Input
+                  id="returnDate"
+                  type="date"
+                  value={formData.returnDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, returnDate: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              {/* BOTÕES */}
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancelar
+                </Button>
+
+                <Button
+                  type="submit"
+                  disabled={
+                    !formData.readerId ||
+                    !formData.bookId ||
+                    !formData.returnDate
+                  }
+                >
+                  Registrar Empréstimo
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
