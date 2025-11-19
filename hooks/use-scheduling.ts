@@ -46,7 +46,7 @@ export function useScheduling() {
     setError(null);
 
     try {
-      await schedulingService.cancelScheduling(id);
+      await schedulingService.deleteScheduling(id);
       return { success: true };
     } catch (err: any) {
       const errorMessage = err.message || "Erro ao cancelar agendamento";
