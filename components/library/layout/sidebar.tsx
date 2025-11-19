@@ -31,7 +31,7 @@ const menuItems = [
     label: "Empréstimos / Devoluções",
   },
   {
-    href: "/library/reservations",
+    href: "/library/scheduling",
     icon: <CalendarCheck className="w-5 h-5" />,
     label: "Gestão de Reservas",
   },
