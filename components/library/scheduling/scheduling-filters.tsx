@@ -9,15 +9,20 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { Filter, Search, X } from "lucide-react";
-import { ReservationFilters as IReservationFilters } from "../../../types/library/reservations";
+import { SchedulingStatus } from "../../../types/index";
 
-interface FiltersProps {
-  filters: IReservationFilters;
-  onFiltersChange: (filters: IReservationFilters) => void;
+interface SchedulingFilters {
+  searchTerm?: string;
+  status?: SchedulingStatus | "all";
+}
+
+interface SchedulingFiltersProps {
+  filters: SchedulingFilters;
+  onFiltersChange: (filters: SchedulingFilters) => void;
   onClearFilters: () => void;
 }
 
-const ReservationFiltersComponent: React.FC<FiltersProps> = ({
+const SchedulingFiltersComponent: React.FC<SchedulingFiltersProps> = ({
   filters,
   onFiltersChange,
   onClearFilters,
@@ -30,7 +35,7 @@ const ReservationFiltersComponent: React.FC<FiltersProps> = ({
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <Input
           type="text"
-          placeholder="Buscar por leitor ou livro..."
+          placeholder="Buscar por livro..."
           value={filters.searchTerm || ""}
           onChange={(e) =>
             onFiltersChange({ ...filters, searchTerm: e.target.value })
@@ -42,7 +47,10 @@ const ReservationFiltersComponent: React.FC<FiltersProps> = ({
       <Select
         value={filters.status || "all"}
         onValueChange={(value) =>
-          onFiltersChange({ ...filters, status: value as any })
+          onFiltersChange({
+            ...filters,
+            status: value as SchedulingStatus | "all",
+          })
         }
       >
         <SelectTrigger className="w-full md:w-[200px]">
@@ -51,11 +59,10 @@ const ReservationFiltersComponent: React.FC<FiltersProps> = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos os status</SelectItem>
-          <SelectItem value="active">Ativas</SelectItem>
-          <SelectItem value="ready">Prontas</SelectItem>
-          <SelectItem value="waiting">Fila de Espera</SelectItem>
-          <SelectItem value="completed">Concluídas</SelectItem>
-          <SelectItem value="cancelled">Canceladas</SelectItem>
+          <SelectItem value="PENDING">Pendentes</SelectItem>
+          <SelectItem value="COMPLETED">Concluídos</SelectItem>
+          <SelectItem value="CANCELLED">Cancelados</SelectItem>
+          <SelectItem value="EXPIRED">Expirados</SelectItem>
         </SelectContent>
       </Select>
 
@@ -73,4 +80,4 @@ const ReservationFiltersComponent: React.FC<FiltersProps> = ({
   );
 };
 
-export default ReservationFiltersComponent;
+export default SchedulingFiltersComponent;
