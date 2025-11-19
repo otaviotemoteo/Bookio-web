@@ -1,27 +1,67 @@
 import { NextRequest, NextResponse } from "next/server";
-import { schedulingService } from "../../../lib/services/scheduling";
-import { CreateSchedulingRequest } from "../../../types/scheduling";
+import { cookies } from "next/headers";
 
-// POST /api/schedulings - Criar agendamento
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body: CreateSchedulingRequest = await req.json();
+    const token = cookies().get("token")?.value;
 
-    if (!body.readerId || !body.bookId) {
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { readerId, bookId } = body;
+
+    if (!readerId || !bookId) {
       return NextResponse.json(
-        { message: "Campos obrigatórios: readerId, bookId" },
+        { error: "readerId e bookId são obrigatórios" },
         { status: 400 }
       );
     }
 
-    const scheduling = await schedulingService.createScheduling(body);
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/schedulings`;
+    console.log("📤 POST /schedulings:", apiUrl);
 
-    return NextResponse.json({ scheduling }, { status: 201 });
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ readerId, bookId }),
+    });
+
+    const textBody = await response.text();
+    let data;
+
+    try {
+      data = textBody ? JSON.parse(textBody) : {};
+    } catch (parseError) {
+      console.error("❌ Erro ao parsear JSON:", parseError);
+      return NextResponse.json(
+        {
+          error: "API externa retornou resposta inválida",
+          details: textBody.slice(0, 200),
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!response.ok) {
+      console.error("❌ Erro da API:", data);
+      return NextResponse.json(
+        { error: data.message || "Erro ao criar agendamento" },
+        { status: response.status }
+      );
+    }
+
+    console.log("✅ Agendamento criado com sucesso!");
+    return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
-    console.error("Error creating scheduling:", error);
+    console.error("❌ ERRO NO SERVIDOR:", error);
     return NextResponse.json(
-      { message: error.message || "Erro ao criar agendamento" },
-      { status: error.status || 500 }
+      { error: "Erro interno do servidor: " + error.message },
+      { status: 500 }
     );
   }
 }
