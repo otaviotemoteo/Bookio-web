@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  AlertCircle,
-  CheckCircle,
-  Calendar,
-  Book,
-  Clock,
-  ExternalLink,
-} from "lucide-react";
+import { AlertCircle, CheckCircle, Calendar, ExternalLink } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 import { Alert, AlertDescription } from "../../ui/alert";
@@ -19,7 +12,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../ui/dialog";
-import { Penalty } from "../../../types/library/penalties";
+
+interface Penalty {
+  id: string;
+  loanId: string;
+  amount: number;
+  paid: boolean;
+  paymentLink?: string;
+  createdAt: string;
+  readerName: string;
+  readerId: string;
+}
 
 interface PenaltyDetailsDialogProps {
   penalty: Penalty | null;
@@ -52,7 +55,7 @@ export const PenaltyDetailsDialog: React.FC<PenaltyDetailsDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Detalhes da Multa</DialogTitle>
           <DialogDescription>
-            Informações completas sobre a multa #{penalty.id}
+            Informações completas sobre a multa #{penalty.id.slice(0, 8)}...
           </DialogDescription>
         </DialogHeader>
 
@@ -93,11 +96,10 @@ export const PenaltyDetailsDialog: React.FC<PenaltyDetailsDialogProps> = ({
               </div>
 
               <div>
-                <p className="text-sm font-medium text-gray-600 mb-2">Livro</p>
-                <p className="flex items-center gap-2">
-                  <Book className="w-4 h-4 text-gray-400" />
-                  {penalty.bookTitle}
+                <p className="text-sm font-medium text-gray-600 mb-2">
+                  ID do Empréstimo
                 </p>
+                <p className="text-sm text-gray-900">{penalty.loanId}</p>
               </div>
             </div>
 
@@ -111,18 +113,6 @@ export const PenaltyDetailsDialog: React.FC<PenaltyDetailsDialogProps> = ({
                   {formatDate(penalty.createdAt)}
                 </p>
               </div>
-
-              {penalty.dueDate && (
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-2">
-                    Vencimento
-                  </p>
-                  <p className="flex items-center gap-2 text-sm">
-                    <Clock className="w-4 h-4 text-gray-400" />
-                    {formatDate(penalty.dueDate)}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
 
@@ -167,14 +157,16 @@ export const PenaltyDetailsDialog: React.FC<PenaltyDetailsDialogProps> = ({
               </Alert>
 
               <div className="flex gap-3">
-                <Button
-                  className="flex-1"
-                  variant="outline"
-                  onClick={() => window.open(penalty.paymentLink, "_blank")}
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Abrir Link de Pagamento
-                </Button>
+                {penalty.paymentLink && (
+                  <Button
+                    className="flex-1"
+                    variant="outline"
+                    onClick={() => window.open(penalty.paymentLink, "_blank")}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Abrir Link de Pagamento
+                  </Button>
+                )}
                 <Button
                   className="flex-1"
                   onClick={() => {

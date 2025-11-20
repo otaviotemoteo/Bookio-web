@@ -3,7 +3,17 @@ import { Card } from "../../ui/card";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
 import { Avatar } from "../../ui/avatar";
-import { Penalty } from "../../../types/library/penalties";
+
+interface Penalty {
+  id: string;
+  loanId: string;
+  amount: number;
+  paid: boolean;
+  paymentLink?: string;
+  createdAt: string;
+  readerName: string;
+  readerId: string;
+}
 
 interface PenaltyTableProps {
   penalties: Penalty[];
@@ -28,7 +38,7 @@ export const PenaltyTable: React.FC<PenaltyTableProps> = ({
                 Leitor
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Livro
+                Empréstimo
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Valor
@@ -64,16 +74,17 @@ export const PenaltyTable: React.FC<PenaltyTableProps> = ({
                           {penalty.readerName}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {penalty.readerId}
+                          {penalty.readerId.slice(0, 8)}...
                         </p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="font-medium text-gray-900">
-                      {penalty.bookTitle}
+                    <p className="text-sm text-gray-900">
+                      {penalty.loanId
+                        ? `ID: ${penalty.loanId.slice(0, 8)}...`
+                        : "N/A"}
                     </p>
-                    <p className="text-xs text-gray-500">{penalty.loanId}</p>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <p className="font-semibold text-gray-900">
