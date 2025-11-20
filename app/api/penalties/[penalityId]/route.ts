@@ -1,28 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
-import { penaltyService } from "../../../../lib/services/penalty";
+import { cookies } from "next/headers";
 
-// GET /api/penalties/:penalityId - Buscar multa por ID
-// Nota: A API usa "penalityId" (com typo) no path
 export async function GET(
-  req: NextRequest,
+  request: NextRequest,
   { params }: { params: { penalityId: string } }
 ) {
   try {
-    const penalty = await penaltyService.getPenalty(params.penalityId);
+    const { penalityId } = params;
 
-    if (!penalty) {
+    const token = cookies().get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/penalties/${penalityId}`;
+    console.log("📤 GET /penalties/:id:", apiUrl);
+
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const textBody = await response.text();
+    let data;
+
+    try {
+      data = textBody ? JSON.parse(textBody) : {};
+    } catch (parseError) {
+      console.error("❌ Erro ao parsear JSON:", parseError);
       return NextResponse.json(
-        { message: "Multa não encontrada" },
-        { status: 404 }
+        {
+          error: "API externa retornou resposta inválida",
+          details: textBody.slice(0, 200),
+        },
+        { status: 500 }
       );
     }
 
-    return NextResponse.json({ penality: penalty });
+    if (!response.ok) {
+      console.error("❌ Erro da API:", data);
+      return NextResponse.json(
+        { error: data.message || "Erro ao buscar multa" },
+        { status: response.status }
+      );
+    }
+
+    console.log("✅ Multa buscada com sucesso!");
+    return NextResponse.json(data);
   } catch (error: any) {
-    console.error("Error fetching penalty:", error);
+    console.error("❌ ERRO NO SERVIDOR:", error);
     return NextResponse.json(
-      { message: error.message || "Erro ao buscar multa" },
-      { status: error.status || 500 }
+      { error: "Erro interno do servidor: " + error.message },
+      { status: 500 }
     );
   }
 }

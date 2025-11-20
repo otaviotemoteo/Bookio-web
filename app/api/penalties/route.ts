@@ -1,34 +1,80 @@
 import { NextRequest, NextResponse } from "next/server";
-import { penaltyService } from "../../../lib/services/penalty";
-import { CreatePenaltyRequest } from "../../../types/penalty";
+import { cookies } from "next/headers";
 
-// POST /api/penalties - Criar multa
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body: CreatePenaltyRequest = await req.json();
+    const token = cookies().get("token")?.value;
 
-    if (!body.readerId || !body.loanId || !body.amount || !body.dueDate) {
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { readerId, loanId, amount, dueDate } = body;
+
+    // Validações básicas
+    if (!readerId || !loanId || !amount || !dueDate) {
       return NextResponse.json(
-        { message: "Campos obrigatórios: readerId, loanId, amount, dueDate" },
+        { error: "Campos obrigatórios: readerId, loanId, amount, dueDate" },
         { status: 400 }
       );
     }
 
-    if (body.amount <= 0) {
+    if (amount <= 0) {
       return NextResponse.json(
-        { message: "O valor da multa deve ser maior que zero" },
+        { error: "O valor da multa deve ser maior que zero" },
         { status: 400 }
       );
     }
 
-    const penalty = await penaltyService.createPenalty(body);
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/penalties`;
+    console.log("📤 POST /penalties:", apiUrl);
 
-    return NextResponse.json({ penality: penalty }, { status: 201 });
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        readerId,
+        loanId,
+        amount,
+        dueDate,
+      }),
+    });
+
+    const textBody = await response.text();
+    let data;
+
+    try {
+      data = textBody ? JSON.parse(textBody) : {};
+    } catch (parseError) {
+      console.error("❌ Erro ao parsear JSON:", parseError);
+      return NextResponse.json(
+        {
+          error: "API externa retornou resposta inválida",
+          details: textBody.slice(0, 200),
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!response.ok) {
+      console.error("❌ Erro da API:", data);
+      return NextResponse.json(
+        { error: data.message || "Erro ao criar multa" },
+        { status: response.status }
+      );
+    }
+
+    console.log("✅ Multa criada com sucesso!");
+    return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
-    console.error("Error creating penalty:", error);
+    console.error("❌ ERRO NO SERVIDOR:", error);
     return NextResponse.json(
-      { message: error.message || "Erro ao criar multa" },
-      { status: error.status || 500 }
+      { error: "Erro interno do servidor: " + error.message },
+      { status: 500 }
     );
   }
 }
