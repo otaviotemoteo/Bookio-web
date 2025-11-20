@@ -3,10 +3,10 @@ export interface Penalty {
   loanId: string;
   readerId: string;
   readerName: string;
-  bookTitle: string;
+  bookTitle?: string;
   amount: number;
   paid: boolean;
-  paymentLink: string;
+  paymentLink?: string;
   createdAt: string;
   dueDate?: string;
 }
