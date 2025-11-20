@@ -25,7 +25,7 @@ import { StatsCard } from "../../../components/library/payments/stats-card";
 import { PenaltyTable } from "../../../components/library/payments/penalty-table";
 import { PenaltyDetailsDialog } from "../../../components/library/payments/penalty-details-dialog";
 import { CreatePenaltyDialog } from "../../../components/library/payments/create-penalty-dialog";
-import { Penalty } from "../../../types/library/penalties";
+import { Penalty } from "../../../types/penalty";
 
 interface Reader {
   id: string;
