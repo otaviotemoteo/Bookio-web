@@ -252,7 +252,7 @@ export default function SchedulingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
