@@ -1,26 +1,67 @@
+"use client";
+
+import { useEffect, useState } from 'react';
 import { DashboardCard } from '../../../components/library/dashboard/dashboard-card';
 import { DashboardGrid } from '../../../components/library/dashboard/dashboard-grid';
+import { useLibrary } from '../../../hooks/use-library';
+import { useAuth } from "../../../hooks/use-auth";
 
-export default async function DashboardPage() {
-  // Aqui você vai buscar os dados das suas rotas
-  // const books = await fetchBooks();
-  // const readers = await fetchReaders();
-  // const loans = await fetchLoans();
-  // const penalties = await fetchPenalties();
+export default function BooksPage() {
+  const { user } = useAuth();
+  const libraryId = user?.id || "";
+  
+  const { getLibraryBooks, getLibraryReaders } = useLibrary();
+  
+  const [hasBooks, setHasBooks] = useState(false);
+  const [hasReaders, setHasReaders] = useState(false);
+  const [hasLoans, setHasLoans] = useState(false);
+  const [hasPenalties, setHasPenalties] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Exemplo temporário - você vai substituir isso
-  const books = []; // Substituir pela chamada real
-  const readers = []; // Substituir pela chamada real
-  const loans = []; // Substituir pela chamada real
-  const penalties = []; // Substituir pela chamada real
+   useEffect(() => {
+    async function fetchData() {
+      if (!libraryId) return;
+      
+      setIsLoading(true);
+      
+      try {
+        // Busca os dados das rotas
+        const booksResult = await getLibraryBooks(libraryId);
+        const readersResult = await getLibraryReaders(libraryId);
+        // const loansResult = await getLibraryLoans(libraryId); // Aguardando
+        // const penaltiesResult = await getLibraryPenalties(libraryId); // Aguardando
 
-  // Verifica se já existem dados (concluído ou não)
-  const hasBooks = books.length > 0;
-  const hasReaders = readers.length > 0;
-  const hasLoans = loans.length > 0;
-  const hasPenalties = penalties.length > 0;
-// Verifica se todas as tarefas foram completadas
+        // Extrai os dados ou usa array vazio como fallback
+        const books = booksResult?.data || [];
+        const readers = readersResult?.data || [];
+        const loans = []; // Temporário - aguardando função
+        const penalties = []; // Temporário - aguardando função
+
+        // Verifica se já existem dados
+        setHasBooks(books.length > 0);
+        setHasReaders(readers.length > 0);
+        setHasLoans(loans.length > 0);
+        setHasPenalties(penalties.length > 0);
+      } catch (error) {
+        console.error('Erro ao buscar dados da dashboard:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [libraryId]);
+
+  // Verifica se todas as tarefas foram completadas
   const allTasksCompleted = hasBooks && hasReaders && hasLoans && hasPenalties;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-600">Carregando...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,7 +88,7 @@ export default async function DashboardPage() {
           description="Cadastre o primeiro livro na biblioteca."
           isCompleted={hasBooks}
           actionText="Criar primeiro livro"
-          actionUrl="/library/books"
+          actionUrl="/books"
         />
 
         <DashboardCard
@@ -56,7 +97,7 @@ export default async function DashboardPage() {
           description="Adicione o primeiro leitor ao sistema."
           isCompleted={hasReaders}
           actionText="Criar primeiro leitor"
-          actionUrl="/library/readers"
+          actionUrl="/readers"
         />
 
         <DashboardCard
@@ -65,7 +106,7 @@ export default async function DashboardPage() {
           description="Registre o primeiro empréstimo de livro."
           isCompleted={hasLoans}
           actionText="Criar primeiro empréstimo"
-          actionUrl="/library/loans"
+          actionUrl="/loans"
         />
 
         <DashboardCard
@@ -74,7 +115,7 @@ export default async function DashboardPage() {
           description="Confira as multas pendentes."
           isCompleted={hasPenalties}
           actionText="Conferir multas"
-          actionUrl="/library/payments"
+          actionUrl="/penalties"
         />
       </DashboardGrid>
     </div>
