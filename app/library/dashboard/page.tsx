@@ -19,6 +19,8 @@ export default async function DashboardPage() {
   const hasReaders = readers.length > 0;
   const hasLoans = loans.length > 0;
   const hasPenalties = penalties.length > 0;
+// Verifica se todas as tarefas foram completadas
+  const allTasksCompleted = hasBooks && hasReaders && hasLoans && hasPenalties;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,7 +31,10 @@ export default async function DashboardPage() {
             Dashboard
           </h1>
           <p className="text-gray-600 mt-1">
-            Complete as primeiras ações para começar a usar o sistema
+            {allTasksCompleted 
+              ? "Gerencie sua biblioteca de forma eficiente e organizada" 
+              : "Complete as primeiras ações para começar a usar o sistema"
+            }
           </p>
         </div>
       </div>
@@ -42,7 +47,7 @@ export default async function DashboardPage() {
           description="Cadastre o primeiro livro na biblioteca."
           isCompleted={hasBooks}
           actionText="Criar primeiro livro"
-          actionUrl="/books"
+          actionUrl="/library/books"
         />
 
         <DashboardCard
@@ -51,7 +56,7 @@ export default async function DashboardPage() {
           description="Adicione o primeiro leitor ao sistema."
           isCompleted={hasReaders}
           actionText="Criar primeiro leitor"
-          actionUrl="/readers"
+          actionUrl="/library/readers"
         />
 
         <DashboardCard
@@ -60,7 +65,7 @@ export default async function DashboardPage() {
           description="Registre o primeiro empréstimo de livro."
           isCompleted={hasLoans}
           actionText="Criar primeiro empréstimo"
-          actionUrl="/loans"
+          actionUrl="/library/loans"
         />
 
         <DashboardCard
@@ -69,7 +74,7 @@ export default async function DashboardPage() {
           description="Confira as multas pendentes."
           isCompleted={hasPenalties}
           actionText="Conferir multas"
-          actionUrl="/penalties"
+          actionUrl="/library/payments"
         />
       </DashboardGrid>
     </div>
