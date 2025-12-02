@@ -134,9 +134,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                   >
                     {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
+                      <EyeOff className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-4 h-4 text-muted-foreground" />
                     )}
                   </Button>
                 </div>

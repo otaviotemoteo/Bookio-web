@@ -19,11 +19,15 @@ const registerSchema = z
     email: z.string().email("Email inválido"),
     password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
     confirmPassword: z.string(),
-    cnpj: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/, "CNPJ inválido"),
+    cnpj: z
+      .string()
+      .regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/, "CNPJ inválido"),
     address: z.object({
       cep: z.string().regex(/^\d{5}\-\d{3}$/, "CEP inválido"),
       street: z.string().min(3, "Rua deve ter pelo menos 3 caracteres"),
-      neighborhood: z.string().min(2, "Bairro deve ter pelo menos 2 caracteres"),
+      neighborhood: z
+        .string()
+        .min(2, "Bairro deve ter pelo menos 2 caracteres"),
       city: z.string().min(2, "Cidade deve ter pelo menos 2 caracteres"),
       number: z.string().min(1, "Número é obrigatório"),
     }),
@@ -93,7 +97,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     const cleanCep = cepValue.replace(/\D/g, "");
     if (cleanCep.length === 8) {
       try {
-        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+        const response = await fetch(
+          `https://viacep.com.br/ws/${cleanCep}/json/`
+        );
         const data = await response.json();
 
         if (!data.erro) {
@@ -139,7 +145,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       });
 
       onRegisterSuccess?.();
-
     } catch (error) {
       console.error("❌ Erro no registro:", error);
       toast({
@@ -169,7 +174,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                   placeholder="João Silva"
                 />
                 {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
 
@@ -182,7 +189,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                   placeholder="seu@email.com"
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -199,7 +208,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                   }}
                 />
                 {errors.cnpj && (
-                  <p className="text-sm text-destructive">{errors.cnpj.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.cnpj.message}
+                  </p>
                 )}
               </div>
 
@@ -217,7 +228,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                   }}
                 />
                 {errors.address?.cep && (
-                  <p className="text-sm text-destructive">{errors.address.cep.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.address.cep.message}
+                  </p>
                 )}
               </div>
 
@@ -238,11 +251,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="w-4 h-4 text-muted-foreground" />
+                    )}
                   </Button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -263,11 +282,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                   >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </Button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.confirmPassword.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -284,7 +309,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     placeholder="Rua das Flores"
                   />
                   {errors.address?.street && (
-                    <p className="text-sm text-destructive">{errors.address.street.message}</p>
+                    <p className="text-sm text-destructive">
+                      {errors.address.street.message}
+                    </p>
                   )}
                 </div>
 
@@ -296,7 +323,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     placeholder="123"
                   />
                   {errors.address?.number && (
-                    <p className="text-sm text-destructive">{errors.address.number.message}</p>
+                    <p className="text-sm text-destructive">
+                      {errors.address.number.message}
+                    </p>
                   )}
                 </div>
 
@@ -308,7 +337,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     placeholder="Centro"
                   />
                   {errors.address?.neighborhood && (
-                    <p className="text-sm text-destructive">{errors.address.neighborhood.message}</p>
+                    <p className="text-sm text-destructive">
+                      {errors.address.neighborhood.message}
+                    </p>
                   )}
                 </div>
 
@@ -320,17 +351,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     placeholder="São Paulo"
                   />
                   {errors.address?.city && (
-                    <p className="text-sm text-destructive">{errors.address.city.message}</p>
+                    <p className="text-sm text-destructive">
+                      {errors.address.city.message}
+                    </p>
                   )}
                 </div>
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
