@@ -4,6 +4,7 @@ export interface CreateReaderRequest {
   name: string;
   email: string;
   cpf: string;
+  password: string;
   libraryId: string;
   address: Address;
 }
@@ -12,6 +13,7 @@ export interface UpdateReaderRequest {
   name?: string;
   email?: string;
   cpf?: string;
+  password?: string;
   address?: Partial<Address>;
 }
 
@@ -20,7 +22,6 @@ export interface Reader {
   name: string;
   email: string;
   cpf: string;
-  pictureUrl?: string;
   active: boolean;
   suspense: number;
   libraryId: string;
