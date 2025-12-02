@@ -10,7 +10,7 @@ export default function BooksPage() {
   const { user } = useAuth();
   const libraryId = user?.id || "";
   
-  const { getLibraryBooks, getLibraryReaders } = useLibrary();
+  const { getLibraryBooks, getLibraryReaders, getLibraryLoans, getLibraryPenalties } = useLibrary();
   
   const [hasBooks, setHasBooks] = useState(false);
   const [hasReaders, setHasReaders] = useState(false);
@@ -28,14 +28,14 @@ export default function BooksPage() {
         // Busca os dados das rotas
         const booksResult = await getLibraryBooks(libraryId);
         const readersResult = await getLibraryReaders(libraryId);
-        // const loansResult = await getLibraryLoans(libraryId); // Aguardando
-        // const penaltiesResult = await getLibraryPenalties(libraryId); // Aguardando
+        const loansResult = await getLibraryLoans(libraryId);
+        const penaltiesResult = await getLibraryPenalties(libraryId);
 
         // Extrai os dados ou usa array vazio como fallback
         const books = booksResult?.data || [];
         const readers = readersResult?.data || [];
-        const loans = []; // Temporário - aguardando função
-        const penalties = []; // Temporário - aguardando função
+        const loans = loansResult?.data || [];
+        const penalties = penaltiesResult?.data || [];
 
         // Verifica se já existem dados
         setHasBooks(books.length > 0);
@@ -57,8 +57,11 @@ export default function BooksPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Carregando...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Carregando...</p>
+        </div>
       </div>
     );
   }
