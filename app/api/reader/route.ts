@@ -6,56 +6,40 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
-    const formData = await request.formData();
-
-    const dataString = formData.get("data") as string;
-    if (!dataString) {
-      return NextResponse.json(
-        { error: "Campo 'data' é obrigatório" },
-        { status: 400 }
-      );
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    let jsonData;
-    try {
-      jsonData = JSON.parse(dataString);
-    } catch (parseError) {
+    // Agora recebemos JSON direto, não FormData
+    const body = await request.json();
+
+    if (!body) {
       return NextResponse.json(
-        { error: "Formato JSON inválido no campo 'data'" },
+        { error: "Dados do leitor são obrigatórios" },
         { status: 400 }
       );
-    }
-
-    const backendFormData = new FormData();
-    backendFormData.append("data", dataString);
-
-    const pictureFile = formData.get("picture");
-    if (pictureFile && pictureFile instanceof File) {
-      backendFormData.append("picture", pictureFile);
     }
 
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/reader`;
-    console.log("Fazendo requisição para:", apiUrl);
-    console.log("Dados do leitor:", jsonData);
+    console.log("📤 POST /reader:", apiUrl);
+    console.log("📋 Dados do leitor:", body);
 
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: backendFormData,
+      body: JSON.stringify(body),
     });
 
     const textBody = await response.text();
-    console.log("Resposta do backend:", textBody);
-
     let data;
+
     try {
       data = textBody ? JSON.parse(textBody) : {};
     } catch (parseError) {
       console.error("❌ Erro ao parsear JSON:", parseError);
-      console.log("Resposta recebida não é JSON válido:", textBody);
-
       return NextResponse.json(
         {
           error: "API externa retornou resposta inválida",
@@ -66,13 +50,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!response.ok) {
-      console.error("❌ Erro da API externa:", data);
+      console.error("❌ Erro da API:", data);
       return NextResponse.json(
-        {
-          error:
-            data.message || data.detail || data.error || "Erro ao criar leitor",
-          details: data,
-        },
+        { error: data.message || "Erro ao criar leitor" },
         { status: response.status }
       );
     }
@@ -81,8 +61,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
     console.error("❌ ERRO NO SERVIDOR:", error);
-    console.error("Mensagem:", error.message);
-    console.error("Stack:", error.stack);
     return NextResponse.json(
       { error: "Erro interno do servidor: " + error.message },
       { status: 500 }
