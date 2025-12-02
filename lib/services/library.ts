@@ -7,6 +7,8 @@ import {
   BooksListResponse,
   BookResponse,
   MostBorrowedBooksResponse,
+  LoansListResponse,
+  PenaltiesListResponse,
 } from "../../types/index";
 
 class LibraryService {
@@ -41,6 +43,16 @@ class LibraryService {
   // Listar livros da biblioteca
   async getLibraryBooks(libraryId: string): Promise<BooksListResponse> {
     return api.get(`/library/${libraryId}/books`);
+  }
+
+  // Listar empréstimos da biblioteca
+  async getLibraryLoans(libraryId: string): Promise<LoansListResponse> {
+    return api.get(`/library/${libraryId}/loans`);
+  }
+
+  // Listar multas da biblioteca
+  async getLibraryPenalties(libraryId: string): Promise<PenaltiesListResponse> {
+    return api.get(`/library/${libraryId}/penalties`);
   }
 
   // Buscar livro por título na biblioteca

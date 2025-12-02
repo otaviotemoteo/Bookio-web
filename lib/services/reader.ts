@@ -16,15 +16,8 @@ class ReaderService {
   }
 
   // Criar leitor
-  async createReader(data: CreateReaderRequest, picture?: File): Promise<void> {
-    const formData = new FormData();
-    formData.append("data", JSON.stringify(data));
-
-    if (picture) {
-      formData.append("picture", picture);
-    }
-
-    return api.uploadFile("/reader", formData);
+  async createReader(data: CreateReaderRequest): Promise<void> {
+    return api.post("/reader", data);
   }
 
   // Buscar leitor por ID
