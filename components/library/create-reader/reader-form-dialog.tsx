@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -16,30 +16,35 @@ import {
 } from "../../ui/dialog";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
-import { Upload, X, Loader2 } from "lucide-react";
-import { useToast } from "../../ui/use-toast";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 // Schema de validação com Zod
-const readerSchema = z.object({
-  name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  email: z.string().email("Email inválido"),
-  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "CPF inválido"),
-  address: z.object({
-    cep: z.string().regex(/^\d{5}-\d{3}$/, "CEP inválido"),
-    street: z.string().min(3, "Rua deve ter no mínimo 3 caracteres"),
-    neighborhood: z.string().min(2, "Bairro deve ter no mínimo 2 caracteres"),
-    city: z.string().min(2, "Cidade deve ter no mínimo 2 caracteres"),
-    number: z.string().min(1, "Número é obrigatório"),
-  }),
-});
+const readerSchema = z
+  .object({
+    name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
+    email: z.string().email("Email inválido"),
+    cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "CPF inválido"),
+    password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+    confirmPassword: z.string().min(6, "Confirme a senha"),
+    address: z.object({
+      cep: z.string().regex(/^\d{5}-\d{3}$/, "CEP inválido"),
+      street: z.string().min(3, "Rua deve ter no mínimo 3 caracteres"),
+      neighborhood: z.string().min(2, "Bairro deve ter no mínimo 2 caracteres"),
+      city: z.string().min(2, "Cidade deve ter no mínimo 2 caracteres"),
+      number: z.string().min(1, "Número é obrigatório"),
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  });
 
 type ReaderFormData = z.infer<typeof readerSchema>;
 
 interface ReaderFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateReaderRequest, picture?: File) => void | Promise<void>;
+  onSubmit: (data: CreateReaderRequest) => void | Promise<void>;
   reader?: Reader | null;
   libraryId: string;
   loading?: boolean;
@@ -53,23 +58,20 @@ export function ReaderFormDialog({
   libraryId,
   loading = false,
 }: ReaderFormDialogProps) {
-  const [pictureFile, setPictureFile] = useState<File | null>(null);
-  const [picturePreview, setPicturePreview] = useState<string>("");
-  const { toast } = useToast();
-
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
     setValue,
-    watch,
   } = useForm<ReaderFormData>({
     resolver: zodResolver(readerSchema),
     defaultValues: {
       name: "",
       email: "",
       cpf: "",
+      password: "",
+      confirmPassword: "",
       address: {
         cep: "",
         street: "",
@@ -80,22 +82,23 @@ export function ReaderFormDialog({
     },
   });
 
-  const formName = watch("name");
-
   useEffect(() => {
     if (reader) {
       reset({
         name: reader.name,
         email: reader.email,
         cpf: reader.cpf,
+        password: "",
+        confirmPassword: "",
         address: reader.address,
       });
-      setPicturePreview(reader.pictureUrl || "");
     } else {
       reset({
         name: "",
         email: "",
         cpf: "",
+        password: "",
+        confirmPassword: "",
         address: {
           cep: "",
           street: "",
@@ -104,32 +107,8 @@ export function ReaderFormDialog({
           number: "",
         },
       });
-      setPicturePreview("");
-      setPictureFile(null);
     }
   }, [reader, open, reset]);
-
-  const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validar tamanho do arquivo (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "Erro",
-          description: "A imagem deve ter no máximo 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      setPictureFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPicturePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleFormSubmit = async (data: ReaderFormData) => {
     try {
@@ -138,6 +117,7 @@ export function ReaderFormDialog({
         name: data.name,
         email: data.email,
         cpf: data.cpf,
+        password: data.password,
         libraryId: libraryId,
         address: {
           cep: data.address.cep,
@@ -149,16 +129,13 @@ export function ReaderFormDialog({
       };
 
       // Chamar o onSubmit passado como prop (vem da página)
-      await onSubmit(readerData, pictureFile || undefined);
+      await onSubmit(readerData);
 
-      // Limpar o formulário após sucesso (a página já mostra o toast)
+      // Limpar o formulário após sucesso
       if (!reader) {
         reset();
-        setPictureFile(null);
-        setPicturePreview("");
       }
     } catch (error) {
-      // O erro já é tratado na página, mas podemos logar aqui se necessário
       console.error("Erro no formulário:", error);
     }
   };
@@ -179,6 +156,9 @@ export function ReaderFormDialog({
       .replace(/(-\d{3})\d+?$/, "$1");
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -187,58 +167,11 @@ export function ReaderFormDialog({
           <DialogDescription>
             {reader
               ? "Atualize as informações do leitor"
-              : "Preencha os dados para cadastrar um novo leitor. Uma senha será gerada e enviada por email."}
+              : "Preencha os dados para cadastrar um novo leitor"}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-          {/* Foto de Perfil */}
-          <div className="flex flex-col items-center gap-4">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={picturePreview} />
-              <AvatarFallback>
-                {formName
-                  ? formName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)
-                  : "?"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex gap-2">
-              <Label htmlFor="picture" className="cursor-pointer">
-                <div className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
-                  <Upload className="h-4 w-4" />
-                  Carregar Foto
-                </div>
-                <Input
-                  id="picture"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handlePictureChange}
-                  disabled={loading}
-                />
-              </Label>
-              {picturePreview && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => {
-                    setPictureFile(null);
-                    setPicturePreview("");
-                  }}
-                  disabled={loading}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-
           {/* Dados Pessoais */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold">Dados Pessoais</h3>
@@ -282,6 +215,77 @@ export function ReaderFormDialog({
                 {errors.email && (
                   <p className="text-sm text-destructive">
                     {errors.email.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Senha */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold">Senha de Acesso</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="password">Senha *</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Mínimo 6 caracteres"
+                    {...register("password")}
+                    disabled={loading}
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+                {errors.password && (
+                  <p className="text-sm text-destructive">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="confirmPassword">Confirmar Senha *</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Digite a senha novamente"
+                    {...register("confirmPassword")}
+                    disabled={loading}
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={loading}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-sm text-destructive">
+                    {errors.confirmPassword.message}
                   </p>
                 )}
               </div>

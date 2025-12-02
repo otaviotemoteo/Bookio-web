@@ -50,12 +50,6 @@ export function ReaderDetailDialog({
         <div className="space-y-6">
           {/* Header com Avatar e Info Principal */}
           <div className="flex items-start gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={reader.pictureUrl} alt={reader.name} />
-              <AvatarFallback className="text-lg">
-                {getInitials(reader.name)}
-              </AvatarFallback>
-            </Avatar>
             <div className="flex-1">
               <h2 className="text-2xl font-bold">{reader.name}</h2>
               <div className="flex items-center gap-2 mt-1 text-muted-foreground">

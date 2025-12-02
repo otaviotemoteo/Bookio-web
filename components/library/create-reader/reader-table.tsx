@@ -1,5 +1,4 @@
 import { Reader } from "../../../types/index";
-import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import {
@@ -10,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/table";
-import { Pencil, Trash2, Eye } from "lucide-react";
+import { Pencil, Trash2, Eye, User } from "lucide-react";
 
 interface ReaderTableProps {
   readers: Reader[];
@@ -63,12 +62,10 @@ export function ReaderTable({
               <TableRow key={reader.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={reader.pictureUrl} alt={reader.name} />
-                      <AvatarFallback>
-                        {getInitials(reader.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    {/* Ícone de usuário simples ao invés de Avatar */}
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
                     <div>
                       <div className="font-medium">{reader.name}</div>
                       <div className="text-sm text-muted-foreground">
