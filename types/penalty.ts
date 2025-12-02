@@ -7,11 +7,16 @@ export interface CreatePenaltyRequest {
 
 export interface Penalty {
   id: string;
+  readerId: string;
   loanId: string;
   amount: number;
   paid: boolean;
   paymentLink?: string;
   createdAt: string;
+}
+
+export interface PenaltyWithReader extends Penalty {
+  readerName: string;
 }
 
 export interface PenaltySimple {
@@ -26,5 +31,5 @@ export interface PenaltyResponse {
 }
 
 export interface PenaltiesListResponse {
-  penalities: PenaltySimple[]; // API usa "penalities" (com typo)
+  penalities: Penalty[];
 }
