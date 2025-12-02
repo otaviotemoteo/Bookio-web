@@ -8,7 +8,6 @@ import {
   TrendingUp,
   Plus,
 } from "lucide-react";
-import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { Button } from "../../../components/ui/button";
 import { Card } from "../../../components/ui/card";
 import {
@@ -20,12 +19,14 @@ import {
 } from "../../../components/ui/select";
 import { useToast } from "../../../components/ui/use-toast";
 import { useAuth } from "../../../hooks/use-auth";
+import { useLibrary } from "../../../hooks/use-library";
+import { useReader } from "../../../hooks/use-reader";
 import { usePenalty } from "../../../hooks/use-penalty";
 import { StatsCard } from "../../../components/library/payments/stats-card";
 import { PenaltyTable } from "../../../components/library/payments/penalty-table";
 import { PenaltyDetailsDialog } from "../../../components/library/payments/penalty-details-dialog";
 import { CreatePenaltyDialog } from "../../../components/library/payments/create-penalty-dialog";
-import { Penalty } from "../../../types/penalty";
+import { PenaltyWithReader } from "../../../types/penalty";
 
 interface Reader {
   id: string;
@@ -33,128 +34,96 @@ interface Reader {
   email: string;
 }
 
-interface PenaltyWithReader extends Penalty {
-  readerName: string;
-  readerId: string;
-}
-
 export default function PaymentsPage() {
   const { user } = useAuth();
   const libraryId = user?.id || "";
   const { toast } = useToast();
+  
+  const { getLibraryReaders, getLibraryPenalties } = useLibrary();
+  const { getReaderPenalties } = useReader();
   const { payPenalty } = usePenalty();
 
   const [readers, setReaders] = useState<Reader[]>([]);
-  const [selectedReaderId, setSelectedReaderId] = useState<string>("");
-  const [selectedReaderName, setSelectedReaderName] = useState<string>("");
-  const [penalties, setPenalties] = useState<PenaltyWithReader[]>([]);
-  const [isLoadingReaders, setIsLoadingReaders] = useState(false);
-  const [isLoadingPenalties, setIsLoadingPenalties] = useState(false);
+  const [selectedReaderId, setSelectedReaderId] = useState<string>("all");
+  const [allPenalties, setAllPenalties] = useState<PenaltyWithReader[]>([]);
+  const [displayedPenalties, setDisplayedPenalties] = useState<PenaltyWithReader[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [selectedPenalty, setSelectedPenalty] =
-    useState<PenaltyWithReader | null>(null);
+  const [selectedPenalty, setSelectedPenalty] = useState<PenaltyWithReader | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  // Carregar readers
+  // Carregar dados iniciais (readers e todas as penalties)
   useEffect(() => {
-    const loadReaders = async () => {
+    const loadInitialData = async () => {
       if (!libraryId) return;
 
-      setIsLoadingReaders(true);
+      setIsLoading(true);
       try {
-        console.log("📤 Carregando readers da biblioteca:", libraryId);
-        const response = await fetch(`/api/library/${libraryId}/readers`);
+        // Buscar readers
+        const readersResult = await getLibraryReaders(libraryId);
+        const readersData = readersResult?.data || [];
+        setReaders(readersData);
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log("✅ Readers carregados:", data);
-          setReaders(data.readers || []);
-        } else {
-          console.error("❌ Erro ao buscar readers");
-          toast({
-            title: "Erro",
-            description: "Erro ao carregar leitores",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error("❌ Erro ao carregar readers:", error);
-        toast({
-          title: "Erro",
-          description: "Erro ao carregar leitores",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoadingReaders(false);
-      }
-    };
+        // Buscar todas as penalties da biblioteca
+        const penaltiesResult = await getLibraryPenalties(libraryId);
+        const penaltiesData = penaltiesResult?.data || [];
 
-    loadReaders();
-  }, [libraryId, toast]);
-
-  // Carregar multas do reader selecionado
-  useEffect(() => {
-    const loadPenalties = async () => {
-      if (!selectedReaderId) {
-        setPenalties([]);
-        return;
-      }
-
-      setIsLoadingPenalties(true);
-      try {
-        console.log("📤 Carregando multas do reader:", selectedReaderId);
-        const response = await fetch(
-          `/api/reader/${selectedReaderId}/penalties`
+        // Mapear penalties com nome do reader
+        const penaltiesWithReader: PenaltyWithReader[] = penaltiesData.map(
+          (penalty) => {
+            const reader = readersData.find((r: Reader) => r.id === penalty.readerId);
+            return {
+              ...penalty,
+              readerName: reader?.name || "Leitor desconhecido",
+            };
+          }
         );
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log("✅ Multas carregadas:", data);
+        setAllPenalties(penaltiesWithReader);
+        setDisplayedPenalties(penaltiesWithReader);
 
-          // Adicionar readerName e readerId às penalties
-          const penaltiesWithReader: PenaltyWithReader[] = (
-            data.penalities || []
-          ).map((p: any) => ({
-            ...p,
-            readerName: selectedReaderName,
-            readerId: selectedReaderId,
-          }));
-
-          setPenalties(penaltiesWithReader);
-        } else {
-          console.error("❌ Erro ao buscar multas");
-          toast({
-            title: "Erro",
-            description: "Erro ao carregar multas do leitor",
-            variant: "destructive",
-          });
-        }
+        console.log("✅ Dados carregados:", {
+          readers: readersData.length,
+          penalties: penaltiesData.length,
+        });
       } catch (error) {
-        console.error("❌ Erro ao carregar multas:", error);
+        console.error("❌ Erro ao carregar dados:", error);
         toast({
           title: "Erro",
-          description: "Erro ao carregar multas do leitor",
+          description: "Erro ao carregar dados",
           variant: "destructive",
         });
       } finally {
-        setIsLoadingPenalties(false);
+        setIsLoading(false);
       }
     };
 
-    loadPenalties();
-  }, [selectedReaderId, selectedReaderName, toast]);
+    loadInitialData();
+  }, [libraryId]);
+
+  // Filtrar penalties quando o reader for alterado
+  useEffect(() => {
+    if (selectedReaderId === "all") {
+      setDisplayedPenalties(allPenalties);
+    } else {
+      const filtered = allPenalties.filter(
+        (p) => p.readerId === selectedReaderId
+      );
+      setDisplayedPenalties(filtered);
+    }
+  }, [selectedReaderId, allPenalties]);
 
   // Calcular estatísticas
   const stats = {
-    total: penalties.length,
-    paid: penalties.filter((p) => p.paid).length,
-    pending: penalties.filter((p) => !p.paid).length,
-    totalAmount: penalties.reduce((sum, p) => sum + p.amount, 0),
-    paidAmount: penalties
+    total: displayedPenalties.length,
+    paid: displayedPenalties.filter((p) => p.paid).length,
+    pending: displayedPenalties.filter((p) => !p.paid).length,
+    totalAmount: displayedPenalties.reduce((sum, p) => sum + p.amount, 0),
+    paidAmount: displayedPenalties
       .filter((p) => p.paid)
       .reduce((sum, p) => sum + p.amount, 0),
-    pendingAmount: penalties
+    pendingAmount: displayedPenalties
       .filter((p) => !p.paid)
       .reduce((sum, p) => sum + p.amount, 0),
   };
@@ -165,8 +134,6 @@ export default function PaymentsPage() {
 
   const handleReaderSelect = (readerId: string) => {
     setSelectedReaderId(readerId);
-    const reader = readers.find((r) => r.id === readerId);
-    setSelectedReaderName(reader?.name || "");
   };
 
   const handlePayPenalty = async (penaltyId: string) => {
@@ -179,8 +146,8 @@ export default function PaymentsPage() {
       });
 
       // Atualizar a lista localmente
-      setPenalties(
-        penalties.map((p) => (p.id === penaltyId ? { ...p, paid: true } : p))
+      setAllPenalties(
+        allPenalties.map((p) => (p.id === penaltyId ? { ...p, paid: true } : p))
       );
     } else {
       toast({
@@ -201,26 +168,32 @@ export default function PaymentsPage() {
     setSelectedPenalty(null);
   };
 
-  const handlePenaltyCreated = () => {
-    // Recarregar as multas do reader selecionado
-    if (selectedReaderId) {
-      const reloadPenalties = async () => {
-        const response = await fetch(
-          `/api/reader/${selectedReaderId}/penalties`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          const penaltiesWithReader: PenaltyWithReader[] = (
-            data.penalities || []
-          ).map((p: any) => ({
-            ...p,
-            readerName: selectedReaderName,
-            readerId: selectedReaderId,
-          }));
-          setPenalties(penaltiesWithReader);
+  const handlePenaltyCreated = async () => {
+    // Recarregar todas as penalties
+    if (!libraryId) return;
+
+    try {
+      const penaltiesResult = await getLibraryPenalties(libraryId);
+      const penaltiesData = penaltiesResult?.data || [];
+
+      const penaltiesWithReader: PenaltyWithReader[] = penaltiesData.map(
+        (penalty) => {
+          const reader = readers.find((r) => r.id === penalty.readerId);
+          return {
+            ...penalty,
+            readerName: reader?.name || "Leitor desconhecido",
+          };
         }
-      };
-      reloadPenalties();
+      );
+
+      setAllPenalties(penaltiesWithReader);
+
+      toast({
+        title: "Sucesso",
+        description: "Multa criada com sucesso!",
+      });
+    } catch (error) {
+      console.error("❌ Erro ao recarregar multas:", error);
     }
   };
 
@@ -273,19 +246,20 @@ export default function PaymentsPage() {
           />
         </div>
 
-        {/* Reader Selection */}
+        {/* Reader Filter */}
         <Card className="p-6">
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Selecione um leitor</h2>
+            <h2 className="text-lg font-semibold">Filtrar por leitor</h2>
             <Select
               value={selectedReaderId}
               onValueChange={handleReaderSelect}
-              disabled={isLoadingReaders}
+              disabled={isLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Escolha um leitor para ver suas multas" />
+                <SelectValue placeholder="Selecione um leitor" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">Todos os leitores</SelectItem>
                 {readers.map((reader) => (
                   <SelectItem key={reader.id} value={reader.id}>
                     {reader.name} ({reader.email})
@@ -297,21 +271,23 @@ export default function PaymentsPage() {
         </Card>
 
         {/* Content Area */}
-        {!selectedReaderId ? (
-          <Card className="p-12">
-            <div className="text-center text-gray-500">
-              Selecione um leitor acima para visualizar suas multas
-            </div>
-          </Card>
-        ) : isLoadingPenalties ? (
+        {isLoading ? (
           <Card className="p-12">
             <div className="text-center text-gray-500">
               Carregando multas...
             </div>
           </Card>
+        ) : displayedPenalties.length === 0 ? (
+          <Card className="p-12">
+            <div className="text-center text-gray-500">
+              {selectedReaderId === "all"
+                ? "Nenhuma multa cadastrada na biblioteca"
+                : "Este leitor não possui multas"}
+            </div>
+          </Card>
         ) : (
           <PenaltyTable
-            penalties={penalties}
+            penalties={displayedPenalties}
             onViewDetails={handleViewDetails}
           />
         )}
