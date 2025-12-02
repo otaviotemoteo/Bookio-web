@@ -25,7 +25,7 @@ export interface LoanResponse {
 }
 
 export interface LoansListResponse {
-  loans: LoanSimple[];
+  loans: Loan[];
 }
 
 export interface LoanStatusResponse {
