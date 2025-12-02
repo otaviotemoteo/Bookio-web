@@ -111,7 +111,7 @@ export default function ReadersPage() {
   ) => {
     try {
       setActionLoading(true);
-      const result = await createReader(data, picture);
+      const result = await createReader(data);
 
       if (result.success) {
         // Recarregar a lista de leitores
