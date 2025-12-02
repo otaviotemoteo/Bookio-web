@@ -3,11 +3,6 @@ import { libraryService } from "../lib/services/library";
 import {
   CreateLibraryRequest,
   UpdateLibraryRequest,
-  Library,
-  Reader,
-  BookSimple,
-  Book,
-  MostBorrowedBook,
 } from "../types/index";
 
 export function useLibrary() {
@@ -116,6 +111,40 @@ export function useLibrary() {
     }
   };
 
+  // Listar empréstimos
+const getLibraryLoans = async (libraryId: string) => {
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    const response = await libraryService.getLibraryLoans(libraryId);
+    return { success: true, data: response.loans };
+  } catch (err: any) {
+    const errorMessage = err.message || "Erro ao buscar empréstimos";
+    setError(errorMessage);
+    return { success: false, error: errorMessage };
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// Listar multas
+const getLibraryPenalties = async (libraryId: string) => {
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    const response = await libraryService.getLibraryPenalties(libraryId);
+    return { success: true, data: response.penalities };
+  } catch (err: any) {
+    const errorMessage = err.message || "Erro ao buscar multas";
+    setError(errorMessage);
+    return { success: false, error: errorMessage };
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   // Buscar por título
   const searchBookByTitle = async (libraryId: string, title: string) => {
     setIsLoading(true);
@@ -160,6 +189,8 @@ export function useLibrary() {
     deleteLibrary,
     getLibraryReaders,
     getLibraryBooks,
+    getLibraryLoans,
+    getLibraryPenalties,
     searchBookByTitle,
     getMostBorrowedBooks,
   };

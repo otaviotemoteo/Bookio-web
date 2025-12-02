@@ -24,12 +24,12 @@ export function useReader() {
   };
 
   // Criar leitor
-  const createReader = async (data: CreateReaderRequest, picture?: File) => {
+  const createReader = async (data: CreateReaderRequest) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      await readerService.createReader(data, picture);
+      await readerService.createReader(data);
       return { success: true };
     } catch (err: any) {
       const errorMessage = err.message || "Erro ao criar leitor";
