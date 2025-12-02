@@ -6,60 +6,62 @@ import { LoansStats } from "../../../components/library/loans/loan-stats";
 import { LoansFilters } from "../../../components/library/loans/loan-filters";
 import { NewLoanDialog } from "../../../components/library/loans/new-loan-dialog";
 import { useAuth } from "../../../hooks/use-auth";
+import { useLibrary } from "../../../hooks/use-library";
 import { useLoan } from "../../../hooks/use-loan";
 import { useToast } from "../../../components/ui/use-toast";
 import {
   Loan,
-  LoanSimple,
   LoanStatus,
   CreateLoanRequest,
 } from "../../../types/index";
 
 export default function LoansPage() {
   const { user } = useAuth();
-  const { getAllLoans, createLoan, deleteLoan, getLoan, isLoading } = useLoan();
+  const libraryId = user?.id || "";
+  
+  const { getLibraryLoans } = useLibrary();
+  const { createLoan, deleteLoan } = useLoan();
   const { toast } = useToast();
 
   const [loans, setLoans] = useState<Loan[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<LoanStatus | "all">("all");
 
   useEffect(() => {
-    if (user?.id) {
+    if (libraryId) {
       loadLoans();
     }
-  }, [user]);
+  }, [libraryId]);
 
   const loadLoans = async () => {
-    console.log("📤 Buscando empréstimos...");
-    const result = await getAllLoans();
+    if (!libraryId) return;
 
-    if (result.success && result.data) {
-      console.log("✅ Empréstimos carregados (simples):", result.data);
+    setIsLoading(true);
+    try {
+      console.log("📤 Buscando empréstimos da biblioteca...");
+      const result = await getLibraryLoans(libraryId);
 
-      // Buscar detalhes completos de cada empréstimo
-      const detailedLoans = await Promise.all(
-        result.data.map(async (simpleLoan: LoanSimple) => {
-          const detailResult = await getLoan(simpleLoan.id);
-          return detailResult.success && detailResult.data
-            ? detailResult.data
-            : null;
-        })
-      );
-
-      // Filtrar nulls e atualizar estado
-      const validLoans = detailedLoans.filter(
-        (loan): loan is Loan => loan !== null
-      );
-      console.log("✅ Empréstimos detalhados:", validLoans);
-      setLoans(validLoans);
-    } else {
-      console.error("❌ Erro ao carregar empréstimos:", result.error);
+      if (result.success && result.data) {
+        console.log("✅ Empréstimos carregados:", result.data);
+        setLoans(result.data);
+      } else {
+        console.error("❌ Erro ao carregar empréstimos:", result.error);
+        toast({
+          title: "Erro ao carregar empréstimos",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("❌ Erro ao carregar empréstimos:", error);
       toast({
-        title: "Erro ao carregar empréstimos",
-        description: result.error,
+        title: "Erro",
+        description: "Erro ao carregar empréstimos",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -162,7 +164,7 @@ export default function LoansPage() {
             Gerencie os empréstimos e devoluções de livros
           </p>
         </div>
-        <NewLoanDialog libraryId={user.id} onSubmit={handleNewLoan} />
+        <NewLoanDialog libraryId={libraryId} onSubmit={handleNewLoan} />
       </div>
 
       {/* Estatísticas */}
