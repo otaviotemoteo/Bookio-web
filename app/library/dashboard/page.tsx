@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { DashboardCard } from '../../../components/library/dashboard/dashboard-card';
-import { DashboardGrid } from '../../../components/library/dashboard/dashboard-grid';
-import { useLibrary } from '../../../hooks/use-library';
+import { useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/use-auth";
+import { useLibrary } from "../../../hooks/use-library";
+import { DashboardEmptyState } from "../../../components/library/dashboard/dashboard-empty-state";
+import { DashboardMetrics } from "../../../components/library/dashboard/dashboard-metrics";
+import { Book } from "../../../types/book";
+import { Reader } from "../../../types/reader";
+import { Loan } from "../../../types/loan";
+import { Penalty } from "../../../types/penalty";
 
-export default function BooksPage() {
+export default function DashboardPage() {
   const { user } = useAuth();
   const libraryId = user?.id || "";
   
@@ -18,7 +22,13 @@ export default function BooksPage() {
   const [hasPenalties, setHasPenalties] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-   useEffect(() => {
+  // Dados para as métricas
+  const [booksData, setBooksData] = useState<Book[]>([]);
+  const [readersData, setReadersData] = useState<Reader[]>([]);
+  const [loansData, setLoansData] = useState<Loan[]>([]);
+  const [penaltiesData, setPenaltiesData] = useState<Penalty[]>([]);
+
+  useEffect(() => {
     async function fetchData() {
       if (!libraryId) return;
       
@@ -36,6 +46,12 @@ export default function BooksPage() {
         const readers = readersResult?.data || [];
         const loans = loansResult?.data || [];
         const penalties = penaltiesResult?.data || [];
+
+        // Guarda os dados completos
+        setBooksData(books);
+        setReadersData(readers);
+        setLoansData(loans);
+        setPenaltiesData(penalties);
 
         // Verifica se já existem dados
         setHasBooks(books.length > 0);
@@ -57,70 +73,28 @@ export default function BooksPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">Carregando...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Carregando...</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Dashboard
-          </h1>
-          <p className="text-gray-600 mt-1">
-            {allTasksCompleted 
-              ? "Gerencie sua biblioteca de forma eficiente e organizada" 
-              : "Complete as primeiras ações para começar a usar o sistema"
-            }
-          </p>
-        </div>
-      </div>
-
-      {/* Cards Grid */}
-      <DashboardGrid>
-        <DashboardCard
-          imageSrc="/book.svg"
-          title="Livros"
-          description="Cadastre o primeiro livro na biblioteca."
-          isCompleted={hasBooks}
-          actionText="Criar primeiro livro"
-          actionUrl="/books"
-        />
-
-        <DashboardCard
-          imageSrc="/people.svg"
-          title="Leitores"
-          description="Adicione o primeiro leitor ao sistema."
-          isCompleted={hasReaders}
-          actionText="Criar primeiro leitor"
-          actionUrl="/readers"
-        />
-
-        <DashboardCard
-          imageSrc="/scheduling.svg"
-          title="Empréstimos"
-          description="Registre o primeiro empréstimo de livro."
-          isCompleted={hasLoans}
-          actionText="Criar primeiro empréstimo"
-          actionUrl="/loans"
-        />
-
-        <DashboardCard
-          imageSrc="/money.svg"
-          title="Multas"
-          description="Confira as multas pendentes."
-          isCompleted={hasPenalties}
-          actionText="Conferir multas"
-          actionUrl="/penalties"
-        />
-      </DashboardGrid>
-    </div>
+  return allTasksCompleted ? (
+    <DashboardMetrics
+      books={booksData}
+      readers={readersData}
+      loans={loansData}
+      penalties={penaltiesData}
+    />
+  ) : (
+    <DashboardEmptyState
+      hasBooks={hasBooks}
+      hasReaders={hasReaders}
+      hasLoans={hasLoans}
+      hasPenalties={hasPenalties}
+    />
   );
 }
