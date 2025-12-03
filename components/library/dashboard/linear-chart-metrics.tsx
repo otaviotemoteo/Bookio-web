@@ -18,8 +18,9 @@ export function LinearChartMetrics({
     
     for (let i = 5; i >= 0; i--) {
       const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const monthName = date.toLocaleDateString('pt-BR', { month: 'long' });
       months.push({
-        month: date.toLocaleDateString('pt-BR', { month: 'short' }),
+        month: monthName.charAt(0).toUpperCase() + monthName.slice(1),
         fullDate: date
       });
     }
@@ -35,14 +36,28 @@ export function LinearChartMetrics({
 
     // Conta empréstimos do mês
     const loansCount = loans.filter(loan => {
-      const loanDate = new Date(loan.createdAt || loan.loanDate);
-      return loanDate >= monthStart && loanDate <= monthEnd;
+      const dateStr = loan.createdAt || loan.loanDate || loan.returnDate;
+      if (!dateStr) return false;
+      
+      try {
+        const loanDate = new Date(dateStr);
+        return loanDate >= monthStart && loanDate <= monthEnd;
+      } catch {
+        return false;
+      }
     }).length;
 
     // Conta multas do mês
     const penaltiesCount = penalties.filter(penalty => {
-      const penaltyDate = new Date(penalty.createdAt || penalty.date);
-      return penaltyDate >= monthStart && penaltyDate <= monthEnd;
+      const dateStr = penalty.createdAt || penalty.date;
+      if (!dateStr) return false;
+      
+      try {
+        const penaltyDate = new Date(dateStr);
+        return penaltyDate >= monthStart && penaltyDate <= monthEnd;
+      } catch {
+        return false;
+      }
     }).length;
 
     return {
@@ -68,7 +83,7 @@ export function LinearChartMetrics({
           <Line 
             type="monotone" 
             dataKey="emprestimos" 
-            stroke="#8b5cf6" 
+            stroke="#eab308" 
             strokeWidth={2}
             name="Empréstimos"
           />
@@ -84,7 +99,7 @@ export function LinearChartMetrics({
 
       <div className="mt-6 flex items-center justify-center space-x-6">
         <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 rounded-full bg-purple-500" />
+          <div className="w-3 h-3 rounded-full bg-yellow-400" />
           <span className="text-sm text-gray-600">
             Empréstimos
           </span>

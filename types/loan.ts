@@ -13,6 +13,7 @@ export interface Loan {
   returnDate: string;
   dueDate: string;
   status: LoanStatus;
+  createdAt?: string;
 }
 
 export interface LoanSimple {

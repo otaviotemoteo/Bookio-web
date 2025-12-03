@@ -29,7 +29,7 @@ export function BarChartMetrics({
     {
       name: 'Empréstimos',
       total: loans.length,
-      fill: '#8b5cf6'
+      fill: '#eab308'
     },
     {
       name: 'Multas',
@@ -37,6 +37,18 @@ export function BarChartMetrics({
       fill: '#ef4444'
     }
   ];
+
+  const CustomTooltip = (props: any) => {
+    const { active, payload } = props;
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 border border-gray-200 rounded shadow-lg">
+          <p className="text-black font-semibold">Total: {payload[0].value}</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -49,9 +61,9 @@ export function BarChartMetrics({
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="total" name="Total" />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend wrapperStyle={{ paddingTop: '20px' }} />
+          <Bar dataKey="total" fill="#3b82f6" name="Total" />
         </BarChart>
       </ResponsiveContainer>
 
