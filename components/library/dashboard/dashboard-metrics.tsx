@@ -24,30 +24,30 @@ export function DashboardMetrics({
     {
       title: "Total de Livros",
       value: books.length,
-      icon: "📚",
+      icon: "/book.svg",
       color: "bg-blue-500",
-      route: "/books"
+      route: "books"
     },
     {
       title: "Total de Leitores",
       value: readers.length,
-      icon: "👥",
+      icon: "/people.svg",
       color: "bg-green-500",
-      route: "/readers"
+      route: "readers"
     },
     {
       title: "Empréstimos Ativos",
-      value: loans.filter(loan => loan.status === "active").length,
-      icon: "📖",
+      value: loans.filter(loan => loan.status === "ACTIVE").length,
+      icon: "/scheduling.svg",
       color: "bg-purple-500",
-      route: "/loans"
+      route: "loans"
     },
     {
       title: "Multas Pendentes",
-      value: penalties.filter(penalty => penalty.status === "pending").length,
-      icon: "💰",
+      value: penalties.filter(penalty => !penalty.paid).length,
+      icon: "/money.svg",
       color: "bg-red-500",
-      route: "/penalties"
+      route: "payments"
     }
   ];
 
@@ -84,8 +84,8 @@ export function DashboardMetrics({
                     {stat.value}
                   </p>
                 </div>
-                <div className={`${stat.color} w-12 h-12 rounded-lg flex items-center justify-center text-2xl`}>
-                  {stat.icon}
+                <div className={`${stat.color} w-12 h-12 rounded-lg flex items-center justify-center`}>
+                  <img src={stat.icon} alt={stat.title} className="w-6 h-6" />
                 </div>
               </div>
               <p className="text-xs text-blue-600 mt-4 font-medium">
