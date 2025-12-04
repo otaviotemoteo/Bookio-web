@@ -145,6 +145,23 @@ const getLibraryPenalties = async (libraryId: string) => {
   }
 };
 
+// Listar agendamentos
+const getLibrarySchedulings = async (libraryId: string) => {
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    const response = await libraryService.getLibrarySchedulings(libraryId);
+    return { success: true, data: response.schedulings };
+  } catch (err: any) {
+    const errorMessage = err.message || "Erro ao buscar agendamentos";
+    setError(errorMessage);
+    return { success: false, error: errorMessage };
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   // Buscar por título
   const searchBookByTitle = async (libraryId: string, title: string) => {
     setIsLoading(true);
@@ -193,5 +210,6 @@ const getLibraryPenalties = async (libraryId: string) => {
     getLibraryPenalties,
     searchBookByTitle,
     getMostBorrowedBooks,
+    getLibrarySchedulings,
   };
 }

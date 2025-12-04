@@ -9,6 +9,7 @@ import {
   MostBorrowedBooksResponse,
   LoansListResponse,
   PenaltiesListResponse,
+  SchedulingsListResponse,
 } from "../../types/index";
 
 class LibraryService {
@@ -54,6 +55,10 @@ class LibraryService {
   async getLibraryPenalties(libraryId: string): Promise<PenaltiesListResponse> {
     return api.get(`/library/${libraryId}/penalties`);
   }
+
+  async getLibrarySchedulings(libraryId: string): Promise<SchedulingsListResponse> {
+  return api.get(`/library/${libraryId}/schedulings`);
+}
 
   // Buscar livro por título na biblioteca
   async searchBookByTitle(
