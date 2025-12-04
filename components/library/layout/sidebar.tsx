@@ -62,7 +62,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-64 h-screen bg-blue-50 text-blue-900 flex flex-col border-r border-blue-100 shadow-sm">
+    <aside className="w-[255px] h-screen bg-blue-50 text-blue-900 flex flex-col border-r border-blue-100 shadow-sm">
       <div className="flex items-center gap-2 px-6 py-5 border-b border-blue-100">
         <BookOpen className="w-6 h-6 text-blue-600" />
         <span className="text-xl font-semibold">Bookio</span>

@@ -15,9 +15,9 @@ export function DashboardEmptyState({
   hasPenalties
 }: DashboardEmptyStateProps) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b rounded-b-lg">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <h1 className="text-3xl font-bold text-gray-900">
             Dashboard
@@ -28,8 +28,9 @@ export function DashboardEmptyState({
         </div>
       </div>
 
-      {/* Cards Grid */}
-      <DashboardGrid>
+      {/* Conteúdo */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <DashboardGrid>
         <DashboardCard
           imageSrc="/book.svg"
           title="Livros"
@@ -66,6 +67,7 @@ export function DashboardEmptyState({
           actionUrl="/penalties"
         />
       </DashboardGrid>
+      </div>
     </div>
   );
 }

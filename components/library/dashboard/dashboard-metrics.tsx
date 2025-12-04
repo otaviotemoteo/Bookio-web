@@ -52,9 +52,9 @@ export function DashboardMetrics({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b rounded-b-lg">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <h1 className="text-3xl font-bold text-gray-900">
             Dashboard
@@ -65,7 +65,7 @@ export function DashboardMetrics({
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Conteúdo */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
