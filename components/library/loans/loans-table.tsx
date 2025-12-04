@@ -8,7 +8,7 @@ import {
 } from "../../ui/table";
 import { Button } from "../../ui/button";
 import { Badge } from "../../ui/badge";
-import { Calendar, Clock, Trash2, Loader2 } from "lucide-react";
+import { Calendar, Clock, Trash2 } from "lucide-react";
 import { LoansEmptyState } from "../loans/loans-empty-state";
 import { Loan, LoanStatus } from "../../../types/index";
 
@@ -81,7 +81,10 @@ export function LoansTable({
         <TableBody>
           {loans.map((loan) => {
             const daysUntilDue = getDaysUntilDue(loan.dueDate);
-            const config = statusConfig[loan.status];
+            const config = statusConfig[loan.status] || {
+              label: loan.status || "Desconhecido",
+              color: "bg-gray-500"
+            };
 
             return (
               <TableRow key={loan.id}>
