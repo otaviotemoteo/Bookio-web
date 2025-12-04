@@ -14,14 +14,18 @@ export interface Scheduling {
   readerId: string;
   bookId: number;
   status: SchedulingStatus;
+  createdAt: string;
   expiresAt: string;
+  updatedAt?: string;
 }
-
 export interface SchedulingSimple {
   id: string;
+  readerId: string
   bookId: number;
   status: SchedulingStatus;
+  createdAt: string;
   expiresAt: string;
+  updatedAt?: string;
 }
 
 export interface SchedulingResponse {
