@@ -153,7 +153,7 @@ export default function LoansPage() {
   }
 
   return (
-    <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <div>

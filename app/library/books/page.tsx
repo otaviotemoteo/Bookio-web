@@ -128,7 +128,7 @@ export default function BooksPage() {
   }
 
   return (
-    <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
