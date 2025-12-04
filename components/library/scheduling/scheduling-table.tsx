@@ -130,7 +130,7 @@ const SchedulingTable: React.FC<SchedulingTableProps> = ({
                       <Eye className="w-4 h-4 mr-1" />
                       Detalhes
                     </Button>
-                    {scheduling.status === "PENDING" && (
+                    {(scheduling.status === "PENDING" || scheduling.status === "EXPIRED") && (
                       <Button
                         size="sm"
                         variant="destructive"
